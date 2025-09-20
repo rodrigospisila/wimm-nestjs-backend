@@ -1,5 +1,5 @@
 import { IsEmail, IsString, MinLength, IsOptional, IsEnum } from 'class-validator';
-import { ThemePreference } from '../../../generated/prisma';
+import { ThemePreference } from '@prisma/client';
 
 export class RegisterDto {
   @IsString()

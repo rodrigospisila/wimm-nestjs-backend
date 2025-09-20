@@ -9,10 +9,10 @@ export declare class JwtStrategy extends JwtStrategy_base {
     validate(payload: any): Promise<{
         name: string;
         email: string;
-        themePreference: import("generated/prisma").$Enums.ThemePreference;
+        themePreference: import("@prisma/client").$Enums.ThemePreference;
         id: number;
         biometricEnabled: boolean;
-        notificationSettings: import("generated/prisma/runtime/library").JsonValue;
+        notificationSettings: import("@prisma/client/runtime/library").JsonValue;
         createdAt: Date;
     }>;
 }

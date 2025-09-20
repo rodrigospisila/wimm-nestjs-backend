@@ -9,10 +9,10 @@ export declare class AuthController {
         user: {
             name: string;
             email: string;
-            themePreference: import("generated/prisma").$Enums.ThemePreference;
+            themePreference: import("@prisma/client").$Enums.ThemePreference;
             id: number;
             biometricEnabled: boolean;
-            notificationSettings: import("generated/prisma/runtime/library").JsonValue;
+            notificationSettings: import("@prisma/client/runtime/library").JsonValue;
             createdAt: Date;
         };
     }>;
@@ -22,9 +22,9 @@ export declare class AuthController {
             id: number;
             name: string;
             email: string;
-            themePreference: import("generated/prisma").$Enums.ThemePreference;
+            themePreference: import("@prisma/client").$Enums.ThemePreference;
             biometricEnabled: boolean;
-            notificationSettings: import("generated/prisma/runtime/library").JsonValue;
+            notificationSettings: import("@prisma/client/runtime/library").JsonValue;
             createdAt: Date;
         };
     }>;

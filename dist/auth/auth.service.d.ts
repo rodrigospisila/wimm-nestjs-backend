@@ -11,10 +11,10 @@ export declare class AuthService {
         user: {
             name: string;
             email: string;
-            themePreference: import("generated/prisma").$Enums.ThemePreference;
+            themePreference: import("@prisma/client").$Enums.ThemePreference;
             id: number;
             biometricEnabled: boolean;
-            notificationSettings: import("generated/prisma/runtime/library").JsonValue;
+            notificationSettings: import("@prisma/client/runtime/library").JsonValue;
             createdAt: Date;
         };
     }>;
@@ -24,19 +24,19 @@ export declare class AuthService {
             id: number;
             name: string;
             email: string;
-            themePreference: import("generated/prisma").$Enums.ThemePreference;
+            themePreference: import("@prisma/client").$Enums.ThemePreference;
             biometricEnabled: boolean;
-            notificationSettings: import("generated/prisma/runtime/library").JsonValue;
+            notificationSettings: import("@prisma/client/runtime/library").JsonValue;
             createdAt: Date;
         };
     }>;
     validateUser(userId: number): Promise<{
         name: string;
         email: string;
-        themePreference: import("generated/prisma").$Enums.ThemePreference;
+        themePreference: import("@prisma/client").$Enums.ThemePreference;
         id: number;
         biometricEnabled: boolean;
-        notificationSettings: import("generated/prisma/runtime/library").JsonValue;
+        notificationSettings: import("@prisma/client/runtime/library").JsonValue;
         createdAt: Date;
     } | null>;
 }

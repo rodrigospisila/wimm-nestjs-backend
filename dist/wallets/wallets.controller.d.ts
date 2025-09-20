@@ -18,7 +18,7 @@ export declare class WalletsController {
             date: Date;
             description: string;
             amount: number;
-            type: import("generated/prisma").$Enums.TransactionType;
+            type: import("@prisma/client").$Enums.TransactionType;
             walletId: number;
             categoryId: number;
             transferToWalletId: number | null;
@@ -45,7 +45,7 @@ export declare class WalletsController {
                 name: string;
                 id: number;
                 userId: number;
-                type: import("generated/prisma").$Enums.CategoryType;
+                type: import("@prisma/client").$Enums.CategoryType;
                 monthlyBudget: number | null;
                 parentCategoryId: number | null;
             };
@@ -55,7 +55,7 @@ export declare class WalletsController {
             date: Date;
             description: string;
             amount: number;
-            type: import("generated/prisma").$Enums.TransactionType;
+            type: import("@prisma/client").$Enums.TransactionType;
             walletId: number;
             categoryId: number;
             transferToWalletId: number | null;
