@@ -1,0 +1,186 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+
+
+model User {
+  id                    Int                     @id @default(autoincrement())
+  name                  String
+  email                 String                  @unique
+  password              String
+  themePreference       ThemePreference         @default(SYSTEM)
+  biometricEnabled      Boolean                 @default(false)
+  pinCode               String?
+  notificationSettings  Json                    @default("{\"budget_alerts\":true,\"bill_reminders\":true,\"transaction_confirmations\":true}")
+  createdAt             DateTime                @default(now())
+  updatedAt             DateTime                @updatedAt
+
+  wallets               Wallet[]
+  categories            Category[]
+  transactions          Transaction[]
+  creditCards           CreditCard[]
+  budgets               Budget[]
+  bankConnections       BankConnection[]
+  notifications         Notification[]
+  userSettings          UserSettings[]
+}
+
+model Wallet {
+  id              Int           @id @default(autoincrement())
+  name            String
+  initialBalance  Float
+  currentBalance  Float
+  user            User          @relation(fields: [userId], references: [id])
+  userId          Int
+  transactions    Transaction[]
+}
+
+model Category {
+  id                Int           @id @default(autoincrement())
+  name              String
+  type              CategoryType
+  monthlyBudget     Float?
+  parentCategory    Category?     @relation("SubCategories", fields: [parentCategoryId], references: [id])
+  parentCategoryId  Int?
+  subCategories     Category[]    @relation("SubCategories")
+  user              User          @relation(fields: [userId], references: [id])
+  userId            Int
+  transactions      Transaction[]
+  cardTransactions  CardTransaction[]
+  installments      Installment[]
+  budgets           Budget[]
+}
+
+model Transaction {
+  id                Int             @id @default(autoincrement())
+  description       String
+  amount            Float
+  date              DateTime
+  type              TransactionType
+  wallet            Wallet          @relation(fields: [walletId], references: [id])
+  walletId          Int
+  category          Category        @relation(fields: [categoryId], references: [id])
+  categoryId        Int
+  transferToWalletId Int?
+  user              User            @relation(fields: [userId], references: [id])
+  userId            Int
+}
+
+model CreditCard {
+  id           Int            @id @default(autoincrement())
+  name         String
+  limit        Float
+  closingDay   Int
+  dueDay       Int
+  bankCode     String?
+  user         User           @relation(fields: [userId], references: [id])
+  userId       Int
+  transactions CardTransaction[]
+  installments Installment[]
+}
+
+model CardTransaction {
+  id           Int        @id @default(autoincrement())
+  description  String
+  amount       Float
+  date         DateTime
+  creditCard   CreditCard @relation(fields: [creditCardId], references: [id])
+  creditCardId Int
+  category     Category   @relation(fields: [categoryId], references: [id])
+  categoryId   Int
+  installment  Installment? @relation(fields: [installmentId], references: [id])
+  installmentId Int?
+}
+
+model Installment {
+  id                Int            @id @default(autoincrement())
+  description       String
+  totalAmount       Float
+  installmentCount  Int
+  currentInstallment Int
+  creditCard        CreditCard     @relation(fields: [creditCardId], references: [id])
+  creditCardId      Int
+  category          Category       @relation(fields: [categoryId], references: [id])
+  categoryId        Int
+  startDate         DateTime
+  transactions      CardTransaction[]
+}
+
+model BankConnection {
+  id          Int      @id @default(autoincrement())
+  bankCode    String
+  bankName    String
+  accessToken String
+  refreshToken String?
+  user        User     @relation(fields: [userId], references: [id])
+  userId      Int
+  isActive    Boolean  @default(true)
+  lastSync    DateTime @default(now())
+}
+
+model Budget {
+  id           Int      @id @default(autoincrement())
+  category     Category @relation(fields: [categoryId], references: [id])
+  categoryId   Int
+  monthlyLimit Float
+  currentSpent Float
+  month        Int
+  year         Int
+  user         User     @relation(fields: [userId], references: [id])
+  userId       Int
+}
+
+model Notification {
+  id            Int      @id @default(autoincrement())
+  type          String
+  title         String
+  message       String
+  isRead        Boolean  @default(false)
+  scheduledDate DateTime?
+  user          User     @relation(fields: [userId], references: [id])
+  userId        Int
+}
+
+model UserSettings {
+  id                   Int      @id @default(autoincrement())
+  user                 User     @relation(fields: [userId], references: [id])
+  userId               Int      @unique
+  currency             String   @default("BRL")
+  dateFormat           String   @default("DD/MM/YYYY")
+  language             String   @default("pt-BR")
+  timezone             String   @default("America/Sao_Paulo")
+  allowNegativeBalance Boolean  @default(true)
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+}
+
+enum ThemePreference {
+  LIGHT
+  DARK
+  SYSTEM
+}
+
+enum CategoryType {
+  INCOME
+  EXPENSE
+}
+
+enum TransactionType {
+  INCOME
+  EXPENSE
+  TRANSFER
+}
+
