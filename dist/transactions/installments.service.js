@@ -151,14 +151,16 @@ let InstallmentsService = class InstallmentsService {
         });
     }
     async findAllInstallments(userId, filters) {
-        const where = {};
+        const where = {
+            category: {
+                userId: userId,
+            },
+        };
         if (filters?.categoryId) {
             where.categoryId = filters.categoryId;
         }
-        else {
-            where.category = {
-                userId: userId,
-            };
+        if (filters?.walletId) {
+            where.walletId = filters.walletId;
         }
         if (filters?.creditCardId) {
             where.creditCardId = filters.creditCardId;

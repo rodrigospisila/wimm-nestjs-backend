@@ -72,42 +72,60 @@ let TransactionsController = class TransactionsController {
         }
         return this.transactionsService.getMonthlyReport(req.user.id, year, month);
     }
-    findOne(req, id) {
-        return this.transactionsService.findOne(req.user.id, id);
-    }
-    update(req, id, updateTransactionDto) {
-        return this.transactionsService.update(req.user.id, id, updateTransactionDto);
-    }
-    remove(req, id) {
-        return this.transactionsService.remove(req.user.id, id);
-    }
     createInstallment(req, createInstallmentDto) {
         return this.installmentsService.createInstallmentTransaction(req.user.id, createInstallmentDto);
     }
     findAllInstallments(req, categoryId, walletId, creditCardId, status, limit, offset) {
         const filters = {};
-        if (categoryId)
-            filters.categoryId = parseInt(categoryId);
-        if (walletId)
-            filters.walletId = parseInt(walletId);
-        if (creditCardId)
-            filters.creditCardId = parseInt(creditCardId);
-        if (status)
+        if (categoryId && categoryId.trim() !== '') {
+            const parsedCategoryId = parseInt(categoryId);
+            if (!isNaN(parsedCategoryId)) {
+                filters.categoryId = parsedCategoryId;
+            }
+        }
+        if (walletId && walletId.trim() !== '') {
+            const parsedWalletId = parseInt(walletId);
+            if (!isNaN(parsedWalletId)) {
+                filters.walletId = parsedWalletId;
+            }
+        }
+        if (creditCardId && creditCardId.trim() !== '') {
+            const parsedCreditCardId = parseInt(creditCardId);
+            if (!isNaN(parsedCreditCardId)) {
+                filters.creditCardId = parsedCreditCardId;
+            }
+        }
+        if (status && ['ACTIVE', 'COMPLETED', 'CANCELLED'].includes(status)) {
             filters.status = status;
-        if (limit)
-            filters.limit = parseInt(limit);
-        if (offset)
-            filters.offset = parseInt(offset);
+        }
+        if (limit && limit.trim() !== '') {
+            const parsedLimit = parseInt(limit);
+            if (!isNaN(parsedLimit) && parsedLimit > 0) {
+                filters.limit = parsedLimit;
+            }
+        }
+        if (offset && offset.trim() !== '') {
+            const parsedOffset = parseInt(offset);
+            if (!isNaN(parsedOffset) && parsedOffset >= 0) {
+                filters.offset = parsedOffset;
+            }
+        }
         return this.installmentsService.findAllInstallments(req.user.id, filters);
     }
     getInstallmentStatistics(req, startDate, endDate, categoryId) {
         const filters = {};
-        if (startDate)
+        if (startDate && startDate.trim() !== '') {
             filters.startDate = startDate;
-        if (endDate)
+        }
+        if (endDate && endDate.trim() !== '') {
             filters.endDate = endDate;
-        if (categoryId)
-            filters.categoryId = parseInt(categoryId);
+        }
+        if (categoryId && categoryId.trim() !== '') {
+            const parsedCategoryId = parseInt(categoryId);
+            if (!isNaN(parsedCategoryId)) {
+                filters.categoryId = parsedCategoryId;
+            }
+        }
         return this.installmentsService.getInstallmentStatistics(req.user.id, filters);
     }
     findOneInstallment(req, id) {
@@ -132,7 +150,13 @@ let TransactionsController = class TransactionsController {
         return { message: 'Parcelas processadas com sucesso' };
     }
     async getUpcomingInstallments(req, days) {
-        const daysAhead = days ? parseInt(days) : 7;
+        let daysAhead = 7;
+        if (days && days.trim() !== '') {
+            const parsedDays = parseInt(days);
+            if (!isNaN(parsedDays) && parsedDays > 0) {
+                daysAhead = parsedDays;
+            }
+        }
         return this.installmentsProcessorService.getUpcomingInstallments(req.user.id, daysAhead);
     }
     async getInstallmentsMonthlyReport(year, month) {
@@ -141,6 +165,15 @@ let TransactionsController = class TransactionsController {
     async processAllInstallments() {
         await this.installmentsProcessorService.processInstallmentsManually();
         return { message: 'Todas as parcelas foram processadas' };
+    }
+    findOne(req, id) {
+        return this.transactionsService.findOne(req.user.id, id);
+    }
+    update(req, id, updateTransactionDto) {
+        return this.transactionsService.update(req.user.id, id, updateTransactionDto);
+    }
+    remove(req, id) {
+        return this.transactionsService.remove(req.user.id, id);
     }
 };
 exports.TransactionsController = TransactionsController;
@@ -186,31 +219,6 @@ __decorate([
     __metadata("design:paramtypes", [Object, Number, Number]),
     __metadata("design:returntype", void 0)
 ], TransactionsController.prototype, "getMonthlyReport", null);
-__decorate([
-    (0, common_1.Get)(':id'),
-    __param(0, (0, common_1.Request)()),
-    __param(1, (0, common_1.Param)('id', common_1.ParseIntPipe)),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, Number]),
-    __metadata("design:returntype", void 0)
-], TransactionsController.prototype, "findOne", null);
-__decorate([
-    (0, common_1.Patch)(':id'),
-    __param(0, (0, common_1.Request)()),
-    __param(1, (0, common_1.Param)('id', common_1.ParseIntPipe)),
-    __param(2, (0, common_1.Body)()),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, Number, update_transaction_dto_1.UpdateTransactionDto]),
-    __metadata("design:returntype", void 0)
-], TransactionsController.prototype, "update", null);
-__decorate([
-    (0, common_1.Delete)(':id'),
-    __param(0, (0, common_1.Request)()),
-    __param(1, (0, common_1.Param)('id', common_1.ParseIntPipe)),
-    __metadata("design:type", Function),
-    __metadata("design:paramtypes", [Object, Number]),
-    __metadata("design:returntype", void 0)
-], TransactionsController.prototype, "remove", null);
 __decorate([
     (0, common_1.Post)('installments'),
     __param(0, (0, common_1.Request)()),
@@ -296,6 +304,31 @@ __decorate([
     __metadata("design:paramtypes", []),
     __metadata("design:returntype", Promise)
 ], TransactionsController.prototype, "processAllInstallments", null);
+__decorate([
+    (0, common_1.Get)(':id'),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Param)('id', common_1.ParseIntPipe)),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, Number]),
+    __metadata("design:returntype", void 0)
+], TransactionsController.prototype, "findOne", null);
+__decorate([
+    (0, common_1.Patch)(':id'),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Param)('id', common_1.ParseIntPipe)),
+    __param(2, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, Number, update_transaction_dto_1.UpdateTransactionDto]),
+    __metadata("design:returntype", void 0)
+], TransactionsController.prototype, "update", null);
+__decorate([
+    (0, common_1.Delete)(':id'),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Param)('id', common_1.ParseIntPipe)),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, Number]),
+    __metadata("design:returntype", void 0)
+], TransactionsController.prototype, "remove", null);
 exports.TransactionsController = TransactionsController = __decorate([
     (0, common_1.Controller)('transactions'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),

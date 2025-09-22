@@ -183,15 +183,20 @@ export class InstallmentsService {
     limit?: number;
     offset?: number;
   }) {
-    const where: any = {};
+    const where: any = {
+      // Sempre filtrar por categorias do usuário
+      category: {
+        userId: userId,
+      },
+    };
 
-    // Filtrar por categoria do usuário
+    // Filtrar por categoria específica se fornecida
     if (filters?.categoryId) {
       where.categoryId = filters.categoryId;
-    } else {
-      where.category = {
-        userId: userId,
-      };
+    }
+
+    if (filters?.walletId) {
+      where.walletId = filters.walletId;
     }
 
     if (filters?.creditCardId) {

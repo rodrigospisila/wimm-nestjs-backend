@@ -93,26 +93,8 @@ export class TransactionsController {
     return this.transactionsService.getMonthlyReport(req.user.id, year, month);
   }
 
-  @Get(':id')
-  findOne(@Request() req, @Param('id', ParseIntPipe) id: number) {
-    return this.transactionsService.findOne(req.user.id, id);
-  }
-
-  @Patch(':id')
-  update(
-    @Request() req,
-    @Param('id', ParseIntPipe) id: number,
-    @Body() updateTransactionDto: UpdateTransactionDto,
-  ) {
-    return this.transactionsService.update(req.user.id, id, updateTransactionDto);
-  }
-
-  @Delete(':id')
-  remove(@Request() req, @Param('id', ParseIntPipe) id: number) {
-    return this.transactionsService.remove(req.user.id, id);
-  }
-
   // ==================== ENDPOINTS DE PARCELAS ====================
+  // IMPORTANTE: Rotas específicas devem vir ANTES das rotas com parâmetros (:id)
 
   @Post('installments')
   createInstallment(
@@ -137,12 +119,45 @@ export class TransactionsController {
   ) {
     const filters: any = {};
 
-    if (categoryId) filters.categoryId = parseInt(categoryId);
-    if (walletId) filters.walletId = parseInt(walletId);
-    if (creditCardId) filters.creditCardId = parseInt(creditCardId);
-    if (status) filters.status = status;
-    if (limit) filters.limit = parseInt(limit);
-    if (offset) filters.offset = parseInt(offset);
+    // Validar e converter parâmetros numéricos
+    if (categoryId && categoryId.trim() !== '') {
+      const parsedCategoryId = parseInt(categoryId);
+      if (!isNaN(parsedCategoryId)) {
+        filters.categoryId = parsedCategoryId;
+      }
+    }
+
+    if (walletId && walletId.trim() !== '') {
+      const parsedWalletId = parseInt(walletId);
+      if (!isNaN(parsedWalletId)) {
+        filters.walletId = parsedWalletId;
+      }
+    }
+
+    if (creditCardId && creditCardId.trim() !== '') {
+      const parsedCreditCardId = parseInt(creditCardId);
+      if (!isNaN(parsedCreditCardId)) {
+        filters.creditCardId = parsedCreditCardId;
+      }
+    }
+
+    if (status && ['ACTIVE', 'COMPLETED', 'CANCELLED'].includes(status)) {
+      filters.status = status;
+    }
+
+    if (limit && limit.trim() !== '') {
+      const parsedLimit = parseInt(limit);
+      if (!isNaN(parsedLimit) && parsedLimit > 0) {
+        filters.limit = parsedLimit;
+      }
+    }
+
+    if (offset && offset.trim() !== '') {
+      const parsedOffset = parseInt(offset);
+      if (!isNaN(parsedOffset) && parsedOffset >= 0) {
+        filters.offset = parsedOffset;
+      }
+    }
 
     return this.installmentsService.findAllInstallments(req.user.id, filters);
   }
@@ -156,9 +171,20 @@ export class TransactionsController {
   ) {
     const filters: any = {};
 
-    if (startDate) filters.startDate = startDate;
-    if (endDate) filters.endDate = endDate;
-    if (categoryId) filters.categoryId = parseInt(categoryId);
+    if (startDate && startDate.trim() !== '') {
+      filters.startDate = startDate;
+    }
+    
+    if (endDate && endDate.trim() !== '') {
+      filters.endDate = endDate;
+    }
+    
+    if (categoryId && categoryId.trim() !== '') {
+      const parsedCategoryId = parseInt(categoryId);
+      if (!isNaN(parsedCategoryId)) {
+        filters.categoryId = parsedCategoryId;
+      }
+    }
 
     return this.installmentsService.getInstallmentStatistics(req.user.id, filters);
   }
@@ -205,7 +231,15 @@ export class TransactionsController {
     @Request() req,
     @Query('days') days?: string,
   ) {
-    const daysAhead = days ? parseInt(days) : 7;
+    let daysAhead = 7; // valor padrão
+    
+    if (days && days.trim() !== '') {
+      const parsedDays = parseInt(days);
+      if (!isNaN(parsedDays) && parsedDays > 0) {
+        daysAhead = parsedDays;
+      }
+    }
+    
     return this.installmentsProcessorService.getUpcomingInstallments(req.user.id, daysAhead);
   }
 
@@ -221,5 +255,27 @@ export class TransactionsController {
   async processAllInstallments() {
     await this.installmentsProcessorService.processInstallmentsManually();
     return { message: 'Todas as parcelas foram processadas' };
+  }
+
+  // ==================== ENDPOINTS COM PARÂMETROS ====================
+  // IMPORTANTE: Rotas com parâmetros (:id) devem vir DEPOIS das rotas específicas
+
+  @Get(':id')
+  findOne(@Request() req, @Param('id', ParseIntPipe) id: number) {
+    return this.transactionsService.findOne(req.user.id, id);
+  }
+
+  @Patch(':id')
+  update(
+    @Request() req,
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateTransactionDto: UpdateTransactionDto,
+  ) {
+    return this.transactionsService.update(req.user.id, id, updateTransactionDto);
+  }
+
+  @Delete(':id')
+  remove(@Request() req, @Param('id', ParseIntPipe) id: number) {
+    return this.transactionsService.remove(req.user.id, id);
   }
 }

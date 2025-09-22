@@ -103,59 +103,6 @@ export declare class TransactionsController {
         byCategory: unknown[];
         byWallet: unknown[];
     }>;
-    findOne(req: any, id: number): Promise<{
-        wallet: {
-            id: number;
-            name: string;
-            color: string;
-            icon: string;
-        };
-        category: {
-            type: import("@prisma/client").$Enums.CategoryType;
-            id: number;
-            name: string;
-            color: string;
-            icon: string;
-        };
-    } & {
-        description: string;
-        amount: number;
-        date: Date;
-        type: import("@prisma/client").$Enums.TransactionType;
-        transferToWalletId: number | null;
-        id: number;
-        walletId: number;
-        categoryId: number;
-        userId: number;
-    }>;
-    update(req: any, id: number, updateTransactionDto: UpdateTransactionDto): Promise<{
-        wallet: {
-            id: number;
-            name: string;
-            color: string;
-            icon: string;
-        };
-        category: {
-            type: import("@prisma/client").$Enums.CategoryType;
-            id: number;
-            name: string;
-            color: string;
-            icon: string;
-        };
-    } & {
-        description: string;
-        amount: number;
-        date: Date;
-        type: import("@prisma/client").$Enums.TransactionType;
-        transferToWalletId: number | null;
-        id: number;
-        walletId: number;
-        categoryId: number;
-        userId: number;
-    }>;
-    remove(req: any, id: number): Promise<{
-        message: string;
-    }>;
     createInstallment(req: any, createInstallmentDto: CreateInstallmentTransactionDto): Promise<{
         installment: ({
             category: {
@@ -399,6 +346,59 @@ export declare class TransactionsController {
     })[]>;
     getInstallmentsMonthlyReport(year: number, month: number): Promise<any>;
     processAllInstallments(): Promise<{
+        message: string;
+    }>;
+    findOne(req: any, id: number): Promise<{
+        wallet: {
+            id: number;
+            name: string;
+            color: string;
+            icon: string;
+        };
+        category: {
+            type: import("@prisma/client").$Enums.CategoryType;
+            id: number;
+            name: string;
+            color: string;
+            icon: string;
+        };
+    } & {
+        description: string;
+        amount: number;
+        date: Date;
+        type: import("@prisma/client").$Enums.TransactionType;
+        transferToWalletId: number | null;
+        id: number;
+        walletId: number;
+        categoryId: number;
+        userId: number;
+    }>;
+    update(req: any, id: number, updateTransactionDto: UpdateTransactionDto): Promise<{
+        wallet: {
+            id: number;
+            name: string;
+            color: string;
+            icon: string;
+        };
+        category: {
+            type: import("@prisma/client").$Enums.CategoryType;
+            id: number;
+            name: string;
+            color: string;
+            icon: string;
+        };
+    } & {
+        description: string;
+        amount: number;
+        date: Date;
+        type: import("@prisma/client").$Enums.TransactionType;
+        transferToWalletId: number | null;
+        id: number;
+        walletId: number;
+        categoryId: number;
+        userId: number;
+    }>;
+    remove(req: any, id: number): Promise<{
         message: string;
     }>;
 }
