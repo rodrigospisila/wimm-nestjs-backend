@@ -25,7 +25,12 @@ export declare class WalletsService {
             category: {
                 name: string;
                 id: number;
+                createdAt: Date;
+                updatedAt: Date;
                 type: import("@prisma/client").$Enums.CategoryType;
+                description: string | null;
+                color: string;
+                icon: string;
                 userId: number;
                 monthlyBudget: number | null;
                 parentCategoryId: number | null;
@@ -63,7 +68,12 @@ export declare class WalletsService {
             category: {
                 name: string;
                 id: number;
+                createdAt: Date;
+                updatedAt: Date;
                 type: import("@prisma/client").$Enums.CategoryType;
+                description: string | null;
+                color: string;
+                icon: string;
                 userId: number;
                 monthlyBudget: number | null;
                 parentCategoryId: number | null;
