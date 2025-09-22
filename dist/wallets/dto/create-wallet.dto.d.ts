@@ -1,4 +1,9 @@
+import { WalletType } from '@prisma/client';
 export declare class CreateWalletDto {
     name: string;
-    initialBalance: number;
+    initialBalance?: number;
+    type?: WalletType;
+    description?: string;
+    color?: string;
+    icon?: string;
 }
