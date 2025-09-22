@@ -1,0 +1,441 @@
+import { Injectable, NotFoundException, BadRequestException, ForbiddenException } from '@nestjs/common';
+import { PrismaService } from '../prisma/prisma.service';
+import { CreateTransactionDto } from './dto/create-transaction.dto';
+import { UpdateTransactionDto } from './dto/update-transaction.dto';
+
+@Injectable()
+export class TransactionsService {
+  constructor(private prisma: PrismaService) {}
+
+  async create(userId: number, createTransactionDto: CreateTransactionDto) {
+    const { categoryId, walletId, amount, type, date, ...transactionData } = createTransactionDto;
+
+    // Verificar se a categoria pertence ao usuário
+    const category = await this.prisma.category.findFirst({
+      where: {
+        id: categoryId,
+        userId: userId,
+      },
+    });
+
+    if (!category) {
+      throw new NotFoundException('Categoria não encontrada');
+    }
+
+    // Verificar se a carteira pertence ao usuário
+    const wallet = await this.prisma.wallet.findFirst({
+      where: {
+        id: walletId,
+        userId: userId,
+      },
+    });
+
+    if (!wallet) {
+      throw new NotFoundException('Carteira não encontrada');
+    }
+
+    // Verificar se o tipo da transação é compatível com a categoria
+    if (category.type !== type) {
+      throw new BadRequestException(
+        `Tipo de transação (${type}) não é compatível com o tipo da categoria (${category.type})`
+      );
+    }
+
+    // Usar a data fornecida ou a data atual
+    const transactionDate = date ? new Date(date) : new Date();
+
+    return this.prisma.$transaction(async (prisma) => {
+      // Criar a transação
+      const transaction = await prisma.transaction.create({
+        data: {
+          ...transactionData,
+          amount,
+          type,
+          date: transactionDate,
+          userId,
+          categoryId,
+          walletId,
+        },
+        include: {
+          category: {
+            select: {
+              id: true,
+              name: true,
+              color: true,
+              icon: true,
+              type: true,
+            },
+          },
+          wallet: {
+            select: {
+              id: true,
+              name: true,
+              color: true,
+              icon: true,
+            },
+          },
+        },
+      });
+
+      // Atualizar o saldo da carteira
+      const balanceChange = type === 'INCOME' ? amount : -amount;
+      await prisma.wallet.update({
+        where: { id: walletId },
+        data: {
+          currentBalance: {
+            increment: balanceChange,
+          },
+        },
+      });
+
+      return transaction;
+    });
+  }
+
+  async findAll(userId: number, filters?: {
+    type?: string;
+    categoryId?: number;
+    walletId?: number;
+    startDate?: string;
+    endDate?: string;
+    limit?: number;
+    offset?: number;
+  }) {
+    const where: any = { userId };
+
+    if (filters?.type && filters.type !== 'ALL') {
+      where.type = filters.type;
+    }
+
+    if (filters?.categoryId) {
+      where.categoryId = filters.categoryId;
+    }
+
+    if (filters?.walletId) {
+      where.walletId = filters.walletId;
+    }
+
+    if (filters?.startDate || filters?.endDate) {
+      where.date = {};
+      if (filters.startDate) {
+        where.date.gte = new Date(filters.startDate);
+      }
+      if (filters.endDate) {
+        where.date.lte = new Date(filters.endDate);
+      }
+    }
+
+    const transactions = await this.prisma.transaction.findMany({
+      where,
+      include: {
+        category: {
+          select: {
+            id: true,
+            name: true,
+            color: true,
+            icon: true,
+            type: true,
+          },
+        },
+        wallet: {
+          select: {
+            id: true,
+            name: true,
+            color: true,
+            icon: true,
+          },
+        },
+      },
+      orderBy: {
+        date: 'desc',
+      },
+      take: filters?.limit,
+      skip: filters?.offset,
+    });
+
+    return transactions;
+  }
+
+  async findOne(userId: number, id: number) {
+    const transaction = await this.prisma.transaction.findFirst({
+      where: {
+        id,
+        userId,
+      },
+      include: {
+        category: {
+          select: {
+            id: true,
+            name: true,
+            color: true,
+            icon: true,
+            type: true,
+          },
+        },
+        wallet: {
+          select: {
+            id: true,
+            name: true,
+            color: true,
+            icon: true,
+          },
+        },
+      },
+    });
+
+    if (!transaction) {
+      throw new NotFoundException('Transação não encontrada');
+    }
+
+    return transaction;
+  }
+
+  async update(userId: number, id: number, updateTransactionDto: UpdateTransactionDto) {
+    const existingTransaction = await this.findOne(userId, id);
+    
+    const { categoryId, walletId, amount, type, date, ...transactionData } = updateTransactionDto;
+
+    // Se categoria foi alterada, verificar se pertence ao usuário
+    if (categoryId && categoryId !== existingTransaction.categoryId) {
+      const category = await this.prisma.category.findFirst({
+        where: {
+          id: categoryId,
+          userId: userId,
+        },
+      });
+
+      if (!category) {
+        throw new NotFoundException('Categoria não encontrada');
+      }
+
+      // Verificar compatibilidade de tipo
+      const newType = type || existingTransaction.type;
+      if (category.type !== newType) {
+        throw new BadRequestException(
+          `Tipo de transação (${newType}) não é compatível com o tipo da categoria (${category.type})`
+        );
+      }
+    }
+
+    // Se carteira foi alterada, verificar se pertence ao usuário
+    if (walletId && walletId !== existingTransaction.walletId) {
+      const wallet = await this.prisma.wallet.findFirst({
+        where: {
+          id: walletId,
+          userId: userId,
+        },
+      });
+
+      if (!wallet) {
+        throw new NotFoundException('Carteira não encontrada');
+      }
+    }
+
+    return this.prisma.$transaction(async (prisma) => {
+      // Reverter o impacto da transação original no saldo da carteira
+      const originalBalanceChange = existingTransaction.type === 'INCOME' 
+        ? -existingTransaction.amount 
+        : existingTransaction.amount;
+
+      await prisma.wallet.update({
+        where: { id: existingTransaction.walletId },
+        data: {
+          currentBalance: {
+            increment: originalBalanceChange,
+          },
+        },
+      });
+
+      // Atualizar a transação
+      const updatedTransaction = await prisma.transaction.update({
+        where: { id },
+        data: {
+          ...transactionData,
+          ...(amount !== undefined && { amount }),
+          ...(type !== undefined && { type }),
+          ...(date !== undefined && { date: new Date(date) }),
+          ...(categoryId !== undefined && { categoryId }),
+          ...(walletId !== undefined && { walletId }),
+        },
+        include: {
+          category: {
+            select: {
+              id: true,
+              name: true,
+              color: true,
+              icon: true,
+              type: true,
+            },
+          },
+          wallet: {
+            select: {
+              id: true,
+              name: true,
+              color: true,
+              icon: true,
+            },
+          },
+        },
+      });
+
+      // Aplicar o novo impacto no saldo da carteira
+      const newAmount = amount !== undefined ? amount : existingTransaction.amount;
+      const newType = type !== undefined ? type : existingTransaction.type;
+      const newWalletId = walletId !== undefined ? walletId : existingTransaction.walletId;
+      
+      const newBalanceChange = newType === 'INCOME' ? newAmount : -newAmount;
+
+      await prisma.wallet.update({
+        where: { id: newWalletId },
+        data: {
+          currentBalance: {
+            increment: newBalanceChange,
+          },
+        },
+      });
+
+      return updatedTransaction;
+    });
+  }
+
+  async remove(userId: number, id: number) {
+    const transaction = await this.findOne(userId, id);
+
+    return this.prisma.$transaction(async (prisma) => {
+      // Reverter o impacto no saldo da carteira
+      const balanceChange = transaction.type === 'INCOME' 
+        ? -transaction.amount 
+        : transaction.amount;
+
+      await prisma.wallet.update({
+        where: { id: transaction.walletId },
+        data: {
+          currentBalance: {
+            increment: balanceChange,
+          },
+        },
+      });
+
+      // Remover a transação
+      await prisma.transaction.delete({
+        where: { id },
+      });
+
+      return { message: 'Transação removida com sucesso' };
+    });
+  }
+
+  async getStatistics(userId: number, filters?: {
+    startDate?: string;
+    endDate?: string;
+    categoryId?: number;
+    walletId?: number;
+  }) {
+    const where: any = { userId };
+
+    if (filters?.categoryId) {
+      where.categoryId = filters.categoryId;
+    }
+
+    if (filters?.walletId) {
+      where.walletId = filters.walletId;
+    }
+
+    if (filters?.startDate || filters?.endDate) {
+      where.date = {};
+      if (filters.startDate) {
+        where.date.gte = new Date(filters.startDate);
+      }
+      if (filters.endDate) {
+        where.date.lte = new Date(filters.endDate);
+      }
+    }
+
+    const [totalIncome, totalExpense, transactionCount, avgTransaction] = await Promise.all([
+      this.prisma.transaction.aggregate({
+        where: { ...where, type: 'INCOME' },
+        _sum: { amount: true },
+      }),
+      this.prisma.transaction.aggregate({
+        where: { ...where, type: 'EXPENSE' },
+        _sum: { amount: true },
+      }),
+      this.prisma.transaction.count({ where }),
+      this.prisma.transaction.aggregate({
+        where,
+        _avg: { amount: true },
+      }),
+    ]);
+
+    const income = totalIncome._sum.amount || 0;
+    const expense = totalExpense._sum.amount || 0;
+    const balance = income - expense;
+
+    return {
+      totalIncome: income,
+      totalExpense: expense,
+      balance,
+      transactionCount,
+      averageTransaction: avgTransaction._avg.amount || 0,
+    };
+  }
+
+  async getMonthlyReport(userId: number, year: number, month: number) {
+    const startDate = new Date(year, month - 1, 1);
+    const endDate = new Date(year, month, 0, 23, 59, 59);
+
+    const transactions = await this.findAll(userId, {
+      startDate: startDate.toISOString(),
+      endDate: endDate.toISOString(),
+    });
+
+    const statistics = await this.getStatistics(userId, {
+      startDate: startDate.toISOString(),
+      endDate: endDate.toISOString(),
+    });
+
+    // Agrupar por categoria
+    const byCategory = transactions.reduce((acc, transaction) => {
+      const categoryName = transaction.category.name;
+      if (!acc[categoryName]) {
+        acc[categoryName] = {
+          categoryId: transaction.category.id,
+          categoryName,
+          categoryColor: transaction.category.color,
+          totalAmount: 0,
+          transactionCount: 0,
+          type: transaction.category.type,
+        };
+      }
+      acc[categoryName].totalAmount += transaction.amount;
+      acc[categoryName].transactionCount += 1;
+      return acc;
+    }, {});
+
+    // Agrupar por carteira
+    const byWallet = transactions.reduce((acc, transaction) => {
+      const walletName = transaction.wallet.name;
+      if (!acc[walletName]) {
+        acc[walletName] = {
+          walletId: transaction.wallet.id,
+          walletName,
+          walletColor: transaction.wallet.color,
+          totalAmount: 0,
+          transactionCount: 0,
+        };
+      }
+      const amount = transaction.type === 'INCOME' ? transaction.amount : -transaction.amount;
+      acc[walletName].totalAmount += amount;
+      acc[walletName].transactionCount += 1;
+      return acc;
+    }, {});
+
+    return {
+      period: `${year}-${month.toString().padStart(2, '0')}`,
+      statistics,
+      transactions,
+      byCategory: Object.values(byCategory),
+      byWallet: Object.values(byWallet),
+    };
+  }
+}

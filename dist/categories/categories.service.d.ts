@@ -6,61 +6,64 @@ export declare class CategoriesService {
     private prisma;
     constructor(prisma: PrismaService);
     create(userId: number, createCategoryDto: CreateCategoryDto): Promise<{
-        parentCategory: {
-            name: string;
-            type: import("@prisma/client").$Enums.CategoryType;
-            description: string | null;
-            color: string;
-            icon: string;
-            monthlyBudget: number | null;
-            createdAt: Date;
-            updatedAt: Date;
-            id: number;
-            parentCategoryId: number | null;
-            userId: number;
-        } | null;
-        subCategories: {
-            name: string;
-            type: import("@prisma/client").$Enums.CategoryType;
-            description: string | null;
-            color: string;
-            icon: string;
-            monthlyBudget: number | null;
-            createdAt: Date;
-            updatedAt: Date;
-            id: number;
-            parentCategoryId: number | null;
-            userId: number;
-        }[];
         _count: {
             transactions: number;
         };
+        parentCategory: {
+            name: string;
+            id: number;
+            createdAt: Date;
+            updatedAt: Date;
+            type: import("@prisma/client").$Enums.CategoryType;
+            description: string | null;
+            color: string;
+            icon: string;
+            userId: number;
+            monthlyBudget: number | null;
+            parentCategoryId: number | null;
+        } | null;
+        subCategories: {
+            name: string;
+            id: number;
+            createdAt: Date;
+            updatedAt: Date;
+            type: import("@prisma/client").$Enums.CategoryType;
+            description: string | null;
+            color: string;
+            icon: string;
+            userId: number;
+            monthlyBudget: number | null;
+            parentCategoryId: number | null;
+        }[];
     } & {
         name: string;
+        id: number;
+        createdAt: Date;
+        updatedAt: Date;
         type: import("@prisma/client").$Enums.CategoryType;
         description: string | null;
         color: string;
         icon: string;
-        monthlyBudget: number | null;
-        createdAt: Date;
-        updatedAt: Date;
-        id: number;
-        parentCategoryId: number | null;
         userId: number;
+        monthlyBudget: number | null;
+        parentCategoryId: number | null;
     }>;
     findAll(userId: number, type?: CategoryType): Promise<({
+        _count: {
+            transactions: number;
+        };
         parentCategory: {
             name: string;
+            id: number;
+            createdAt: Date;
+            updatedAt: Date;
             type: import("@prisma/client").$Enums.CategoryType;
             description: string | null;
             color: string;
             icon: string;
-            monthlyBudget: number | null;
-            createdAt: Date;
-            updatedAt: Date;
-            id: number;
-            parentCategoryId: number | null;
             userId: number;
+            monthlyBudget: number | null;
+            parentCategoryId: number | null;
         } | null;
         subCategories: ({
             _count: {
@@ -68,47 +71,47 @@ export declare class CategoriesService {
             };
         } & {
             name: string;
+            id: number;
+            createdAt: Date;
+            updatedAt: Date;
             type: import("@prisma/client").$Enums.CategoryType;
             description: string | null;
             color: string;
             icon: string;
-            monthlyBudget: number | null;
-            createdAt: Date;
-            updatedAt: Date;
-            id: number;
-            parentCategoryId: number | null;
             userId: number;
+            monthlyBudget: number | null;
+            parentCategoryId: number | null;
         })[];
-        _count: {
-            transactions: number;
-        };
     } & {
         name: string;
+        id: number;
+        createdAt: Date;
+        updatedAt: Date;
         type: import("@prisma/client").$Enums.CategoryType;
         description: string | null;
         color: string;
         icon: string;
-        monthlyBudget: number | null;
-        createdAt: Date;
-        updatedAt: Date;
-        id: number;
-        parentCategoryId: number | null;
         userId: number;
+        monthlyBudget: number | null;
+        parentCategoryId: number | null;
     })[]>;
     findHierarchical(userId: number, type?: CategoryType): Promise<{
         subCategories: ({
+            _count: {
+                transactions: number;
+            };
             parentCategory: {
                 name: string;
+                id: number;
+                createdAt: Date;
+                updatedAt: Date;
                 type: import("@prisma/client").$Enums.CategoryType;
                 description: string | null;
                 color: string;
                 icon: string;
-                monthlyBudget: number | null;
-                createdAt: Date;
-                updatedAt: Date;
-                id: number;
-                parentCategoryId: number | null;
                 userId: number;
+                monthlyBudget: number | null;
+                parentCategoryId: number | null;
             } | null;
             subCategories: ({
                 _count: {
@@ -116,107 +119,78 @@ export declare class CategoriesService {
                 };
             } & {
                 name: string;
+                id: number;
+                createdAt: Date;
+                updatedAt: Date;
                 type: import("@prisma/client").$Enums.CategoryType;
                 description: string | null;
                 color: string;
                 icon: string;
-                monthlyBudget: number | null;
-                createdAt: Date;
-                updatedAt: Date;
-                id: number;
-                parentCategoryId: number | null;
                 userId: number;
+                monthlyBudget: number | null;
+                parentCategoryId: number | null;
             })[];
-            _count: {
-                transactions: number;
-            };
         } & {
             name: string;
+            id: number;
+            createdAt: Date;
+            updatedAt: Date;
             type: import("@prisma/client").$Enums.CategoryType;
             description: string | null;
             color: string;
             icon: string;
-            monthlyBudget: number | null;
-            createdAt: Date;
-            updatedAt: Date;
-            id: number;
-            parentCategoryId: number | null;
             userId: number;
+            monthlyBudget: number | null;
+            parentCategoryId: number | null;
         })[];
-        parentCategory: {
-            name: string;
-            type: import("@prisma/client").$Enums.CategoryType;
-            description: string | null;
-            color: string;
-            icon: string;
-            monthlyBudget: number | null;
-            createdAt: Date;
-            updatedAt: Date;
-            id: number;
-            parentCategoryId: number | null;
-            userId: number;
-        } | null;
         _count: {
             transactions: number;
         };
+        parentCategory: {
+            name: string;
+            id: number;
+            createdAt: Date;
+            updatedAt: Date;
+            type: import("@prisma/client").$Enums.CategoryType;
+            description: string | null;
+            color: string;
+            icon: string;
+            userId: number;
+            monthlyBudget: number | null;
+            parentCategoryId: number | null;
+        } | null;
         name: string;
+        id: number;
+        createdAt: Date;
+        updatedAt: Date;
         type: import("@prisma/client").$Enums.CategoryType;
         description: string | null;
         color: string;
         icon: string;
-        monthlyBudget: number | null;
-        createdAt: Date;
-        updatedAt: Date;
-        id: number;
-        parentCategoryId: number | null;
         userId: number;
+        monthlyBudget: number | null;
+        parentCategoryId: number | null;
     }[]>;
     findOne(userId: number, id: number): Promise<{
-        parentCategory: {
-            name: string;
-            type: import("@prisma/client").$Enums.CategoryType;
-            description: string | null;
-            color: string;
-            icon: string;
-            monthlyBudget: number | null;
-            createdAt: Date;
-            updatedAt: Date;
-            id: number;
-            parentCategoryId: number | null;
-            userId: number;
-        } | null;
-        subCategories: {
-            name: string;
-            type: import("@prisma/client").$Enums.CategoryType;
-            description: string | null;
-            color: string;
-            icon: string;
-            monthlyBudget: number | null;
-            createdAt: Date;
-            updatedAt: Date;
-            id: number;
-            parentCategoryId: number | null;
-            userId: number;
-        }[];
         transactions: ({
             wallet: {
                 name: string;
+                id: number;
+                createdAt: Date;
+                updatedAt: Date;
+                initialBalance: number;
                 type: import("@prisma/client").$Enums.WalletType;
                 description: string | null;
                 color: string;
                 icon: string;
-                createdAt: Date;
-                updatedAt: Date;
-                id: number;
-                userId: number;
-                initialBalance: number;
                 currentBalance: number;
                 isActive: boolean;
+                userId: number;
             };
         } & {
+            id: number;
             type: import("@prisma/client").$Enums.TransactionType;
             description: string;
-            id: number;
             userId: number;
             date: Date;
             amount: number;
@@ -227,74 +201,100 @@ export declare class CategoriesService {
         _count: {
             transactions: number;
         };
-    } & {
-        name: string;
-        type: import("@prisma/client").$Enums.CategoryType;
-        description: string | null;
-        color: string;
-        icon: string;
-        monthlyBudget: number | null;
-        createdAt: Date;
-        updatedAt: Date;
-        id: number;
-        parentCategoryId: number | null;
-        userId: number;
-    }>;
-    update(userId: number, id: number, updateCategoryDto: UpdateCategoryDto): Promise<{
         parentCategory: {
             name: string;
+            id: number;
+            createdAt: Date;
+            updatedAt: Date;
             type: import("@prisma/client").$Enums.CategoryType;
             description: string | null;
             color: string;
             icon: string;
-            monthlyBudget: number | null;
-            createdAt: Date;
-            updatedAt: Date;
-            id: number;
-            parentCategoryId: number | null;
             userId: number;
+            monthlyBudget: number | null;
+            parentCategoryId: number | null;
         } | null;
         subCategories: {
             name: string;
+            id: number;
+            createdAt: Date;
+            updatedAt: Date;
             type: import("@prisma/client").$Enums.CategoryType;
             description: string | null;
             color: string;
             icon: string;
-            monthlyBudget: number | null;
-            createdAt: Date;
-            updatedAt: Date;
-            id: number;
-            parentCategoryId: number | null;
             userId: number;
+            monthlyBudget: number | null;
+            parentCategoryId: number | null;
         }[];
+    } & {
+        name: string;
+        id: number;
+        createdAt: Date;
+        updatedAt: Date;
+        type: import("@prisma/client").$Enums.CategoryType;
+        description: string | null;
+        color: string;
+        icon: string;
+        userId: number;
+        monthlyBudget: number | null;
+        parentCategoryId: number | null;
+    }>;
+    update(userId: number, id: number, updateCategoryDto: UpdateCategoryDto): Promise<{
         _count: {
             transactions: number;
         };
+        parentCategory: {
+            name: string;
+            id: number;
+            createdAt: Date;
+            updatedAt: Date;
+            type: import("@prisma/client").$Enums.CategoryType;
+            description: string | null;
+            color: string;
+            icon: string;
+            userId: number;
+            monthlyBudget: number | null;
+            parentCategoryId: number | null;
+        } | null;
+        subCategories: {
+            name: string;
+            id: number;
+            createdAt: Date;
+            updatedAt: Date;
+            type: import("@prisma/client").$Enums.CategoryType;
+            description: string | null;
+            color: string;
+            icon: string;
+            userId: number;
+            monthlyBudget: number | null;
+            parentCategoryId: number | null;
+        }[];
     } & {
         name: string;
+        id: number;
+        createdAt: Date;
+        updatedAt: Date;
         type: import("@prisma/client").$Enums.CategoryType;
         description: string | null;
         color: string;
         icon: string;
-        monthlyBudget: number | null;
-        createdAt: Date;
-        updatedAt: Date;
-        id: number;
-        parentCategoryId: number | null;
         userId: number;
+        monthlyBudget: number | null;
+        parentCategoryId: number | null;
     }>;
     remove(userId: number, id: number): Promise<{
         name: string;
+        id: number;
+        createdAt: Date;
+        updatedAt: Date;
         type: import("@prisma/client").$Enums.CategoryType;
         description: string | null;
         color: string;
         icon: string;
-        monthlyBudget: number | null;
-        createdAt: Date;
-        updatedAt: Date;
-        id: number;
-        parentCategoryId: number | null;
         userId: number;
+        monthlyBudget: number | null;
+        parentCategoryId: number | null;
     }>;
     getStatistics(userId: number, categoryId?: number): Promise<{
         categoryId: number;
