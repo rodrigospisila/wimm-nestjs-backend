@@ -13,14 +13,21 @@ import {
   BadRequestException,
 } from '@nestjs/common';
 import { TransactionsService } from './transactions.service';
+import { InstallmentsService } from './installments.service';
+import { InstallmentsProcessorService } from './installments-processor.service';
 import { CreateTransactionDto } from './dto/create-transaction.dto';
+import { CreateInstallmentTransactionDto } from './dto/create-installment-transaction.dto';
 import { UpdateTransactionDto } from './dto/update-transaction.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @Controller('transactions')
 @UseGuards(JwtAuthGuard)
 export class TransactionsController {
-  constructor(private readonly transactionsService: TransactionsService) {}
+  constructor(
+    private readonly transactionsService: TransactionsService,
+    private readonly installmentsService: InstallmentsService,
+    private readonly installmentsProcessorService: InstallmentsProcessorService,
+  ) {}
 
   @Post()
   create(@Request() req, @Body() createTransactionDto: CreateTransactionDto) {
@@ -103,5 +110,116 @@ export class TransactionsController {
   @Delete(':id')
   remove(@Request() req, @Param('id', ParseIntPipe) id: number) {
     return this.transactionsService.remove(req.user.id, id);
+  }
+
+  // ==================== ENDPOINTS DE PARCELAS ====================
+
+  @Post('installments')
+  createInstallment(
+    @Request() req,
+    @Body() createInstallmentDto: CreateInstallmentTransactionDto,
+  ) {
+    return this.installmentsService.createInstallmentTransaction(
+      req.user.id,
+      createInstallmentDto,
+    );
+  }
+
+  @Get('installments')
+  findAllInstallments(
+    @Request() req,
+    @Query('categoryId') categoryId?: string,
+    @Query('walletId') walletId?: string,
+    @Query('creditCardId') creditCardId?: string,
+    @Query('status') status?: 'ACTIVE' | 'COMPLETED' | 'CANCELLED',
+    @Query('limit') limit?: string,
+    @Query('offset') offset?: string,
+  ) {
+    const filters: any = {};
+
+    if (categoryId) filters.categoryId = parseInt(categoryId);
+    if (walletId) filters.walletId = parseInt(walletId);
+    if (creditCardId) filters.creditCardId = parseInt(creditCardId);
+    if (status) filters.status = status;
+    if (limit) filters.limit = parseInt(limit);
+    if (offset) filters.offset = parseInt(offset);
+
+    return this.installmentsService.findAllInstallments(req.user.id, filters);
+  }
+
+  @Get('installments/statistics')
+  getInstallmentStatistics(
+    @Request() req,
+    @Query('startDate') startDate?: string,
+    @Query('endDate') endDate?: string,
+    @Query('categoryId') categoryId?: string,
+  ) {
+    const filters: any = {};
+
+    if (startDate) filters.startDate = startDate;
+    if (endDate) filters.endDate = endDate;
+    if (categoryId) filters.categoryId = parseInt(categoryId);
+
+    return this.installmentsService.getInstallmentStatistics(req.user.id, filters);
+  }
+
+  @Get('installments/:id')
+  findOneInstallment(@Request() req, @Param('id', ParseIntPipe) id: number) {
+    return this.installmentsService.findOneInstallment(req.user.id, id);
+  }
+
+  @Delete('installments/:id')
+  cancelInstallment(@Request() req, @Param('id', ParseIntPipe) id: number) {
+    return this.installmentsService.cancelInstallment(req.user.id, id);
+  }
+
+  @Get('upcoming-payments')
+  getUpcomingPayments(
+    @Request() req,
+    @Query('days') days?: string,
+    @Query('limit') limit?: string,
+  ) {
+    const daysAhead = days ? parseInt(days) : 30;
+    const limitResults = limit ? parseInt(limit) : 10;
+
+    const endDate = new Date();
+    endDate.setDate(endDate.getDate() + daysAhead);
+
+    return this.transactionsService.findAll(req.user.id, {
+      startDate: new Date().toISOString().split('T')[0],
+      endDate: endDate.toISOString().split('T')[0],
+      limit: limitResults,
+    });
+  }
+
+  // Endpoints do Processador de Parcelas
+
+  @Post('installments/process')
+  async processInstallments(@Request() req) {
+    await this.installmentsProcessorService.processUserInstallments(req.user.id);
+    return { message: 'Parcelas processadas com sucesso' };
+  }
+
+  @Get('installments/upcoming')
+  async getUpcomingInstallments(
+    @Request() req,
+    @Query('days') days?: string,
+  ) {
+    const daysAhead = days ? parseInt(days) : 7;
+    return this.installmentsProcessorService.getUpcomingInstallments(req.user.id, daysAhead);
+  }
+
+  @Get('installments/monthly-report/:year/:month')
+  async getInstallmentsMonthlyReport(
+    @Param('year', ParseIntPipe) year: number,
+    @Param('month', ParseIntPipe) month: number,
+  ) {
+    return this.installmentsProcessorService.generateMonthlyReport(year, month);
+  }
+
+  @Post('installments/process-all')
+  async processAllInstallments() {
+    await this.installmentsProcessorService.processInstallmentsManually();
+    return { message: 'Todas as parcelas foram processadas' };
   }
 }

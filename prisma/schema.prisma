@@ -119,13 +119,24 @@ model Installment {
   description       String
   totalAmount       Float
   installmentCount  Int
-  currentInstallment Int
-  creditCard        CreditCard     @relation(fields: [creditCardId], references: [id])
-  creditCardId      Int
+  currentInstallment Int           @default(0)
+  creditCard        CreditCard?    @relation(fields: [creditCardId], references: [id])
+  creditCardId      Int?
   category          Category       @relation(fields: [categoryId], references: [id])
   categoryId        Int
   startDate         DateTime
+  installmentType   InstallmentType @default(FIXED)
+  notes             String?
+  tags              String?
+  isActive          Boolean        @default(true)
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
   transactions      CardTransaction[]
+}
+
+enum InstallmentType {
+  FIXED
+  CREDIT_CARD
 }
 
 model BankConnection {

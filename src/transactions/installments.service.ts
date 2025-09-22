@@ -1,0 +1,456 @@
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import { PrismaService } from '../prisma/prisma.service';
+import { CreateInstallmentTransactionDto, InstallmentType } from './dto/create-installment-transaction.dto';
+
+@Injectable()
+export class InstallmentsService {
+  constructor(private prisma: PrismaService) {}
+
+  async createInstallmentTransaction(userId: number, createInstallmentDto: CreateInstallmentTransactionDto) {
+    const {
+      categoryId,
+      walletId,
+      creditCardId,
+      totalAmount,
+      installmentCount,
+      installmentType,
+      startDate,
+      dueDay,
+      ...transactionData
+    } = createInstallmentDto;
+
+    // Verificar se a categoria pertence ao usuário
+    const category = await this.prisma.category.findFirst({
+      where: {
+        id: categoryId,
+        userId: userId,
+      },
+    });
+
+    if (!category) {
+      throw new NotFoundException('Categoria não encontrada');
+    }
+
+    // Verificar se a carteira pertence ao usuário
+    const wallet = await this.prisma.wallet.findFirst({
+      where: {
+        id: walletId,
+        userId: userId,
+      },
+    });
+
+    if (!wallet) {
+      throw new NotFoundException('Carteira não encontrada');
+    }
+
+    // Se for cartão de crédito, verificar se o cartão existe
+    if (installmentType === InstallmentType.CREDIT_CARD && creditCardId) {
+      const creditCard = await this.prisma.creditCard.findFirst({
+        where: {
+          id: creditCardId,
+          userId: userId,
+        },
+      });
+
+      if (!creditCard) {
+        throw new NotFoundException('Cartão de crédito não encontrado');
+      }
+    }
+
+    // Calcular valor de cada parcela
+    const installmentAmount = Math.round((totalAmount / installmentCount) * 100) / 100;
+    const lastInstallmentAmount = totalAmount - (installmentAmount * (installmentCount - 1));
+
+    // Data de início (padrão: próximo mês)
+    const baseDate = startDate ? new Date(startDate) : new Date();
+    if (!startDate) {
+      baseDate.setMonth(baseDate.getMonth() + 1);
+      baseDate.setDate(1);
+    }
+
+    return this.prisma.$transaction(async (prisma) => {
+      // Criar o registro principal da parcela
+      const installment = await prisma.installment.create({
+        data: {
+          description: transactionData.description,
+          totalAmount,
+          installmentCount,
+          currentInstallment: 0,
+          categoryId,
+          startDate: baseDate,
+          ...(creditCardId && { creditCardId }),
+        },
+      });
+
+      // Criar as transações individuais de cada parcela
+      const transactions: any[] = [];
+      for (let i = 1; i <= installmentCount; i++) {
+        const installmentDate = new Date(baseDate);
+        installmentDate.setMonth(baseDate.getMonth() + (i - 1));
+        
+        // Se for cartão de crédito e tiver dia de vencimento, usar esse dia
+        if (installmentType === InstallmentType.CREDIT_CARD && dueDay) {
+          installmentDate.setDate(dueDay);
+        }
+
+        const amount = i === installmentCount ? lastInstallmentAmount : installmentAmount;
+
+        if (installmentType === InstallmentType.CREDIT_CARD && creditCardId) {
+          // Criar transação de cartão de crédito
+          const cardTransaction = await prisma.cardTransaction.create({
+            data: {
+              description: `${transactionData.description} (${i}/${installmentCount})`,
+              amount,
+              date: installmentDate,
+              creditCardId,
+              categoryId,
+              installmentId: installment.id,
+            },
+          });
+          transactions.push(cardTransaction);
+        } else {
+          // Criar transação normal na carteira
+          const transaction = await prisma.transaction.create({
+            data: {
+              description: `${transactionData.description} (${i}/${installmentCount})`,
+              amount,
+              date: installmentDate,
+              type: 'EXPENSE',
+              userId,
+              categoryId,
+              walletId,
+            },
+          });
+
+          // Atualizar saldo da carteira apenas para a primeira parcela (se for débito imediato)
+          if (i === 1 && installmentType === InstallmentType.FIXED) {
+            await prisma.wallet.update({
+              where: { id: walletId },
+              data: {
+                currentBalance: {
+                  decrement: amount,
+                },
+              },
+            });
+          }
+
+          transactions.push(transaction);
+        }
+      }
+
+      return {
+        installment: await prisma.installment.findUnique({
+          where: { id: installment.id },
+          include: {
+            category: {
+              select: {
+                id: true,
+                name: true,
+                color: true,
+                icon: true,
+                type: true,
+              },
+            },
+            creditCard: creditCardId ? {
+              select: {
+                id: true,
+                name: true,
+                limit: true,
+                closingDay: true,
+                dueDay: true,
+              },
+            } : false,
+            transactions: installmentType !== InstallmentType.CREDIT_CARD,
+          },
+        }),
+        transactions,
+        summary: {
+          totalAmount,
+          installmentCount,
+          installmentAmount,
+          lastInstallmentAmount,
+          installmentType,
+        },
+      };
+    });
+  }
+
+  async findAllInstallments(userId: number, filters?: {
+    categoryId?: number;
+    walletId?: number;
+    creditCardId?: number;
+    status?: 'ACTIVE' | 'COMPLETED' | 'CANCELLED';
+    limit?: number;
+    offset?: number;
+  }) {
+    const where: any = {};
+
+    // Filtrar por categoria do usuário
+    if (filters?.categoryId) {
+      where.categoryId = filters.categoryId;
+    } else {
+      where.category = {
+        userId: userId,
+      };
+    }
+
+    if (filters?.creditCardId) {
+      where.creditCardId = filters.creditCardId;
+    }
+
+    const installments = await this.prisma.installment.findMany({
+      where,
+      include: {
+        category: {
+          select: {
+            id: true,
+            name: true,
+            color: true,
+            icon: true,
+            type: true,
+          },
+        },
+        creditCard: {
+          select: {
+            id: true,
+            name: true,
+            limit: true,
+            closingDay: true,
+            dueDay: true,
+          },
+        },
+        transactions: {
+          select: {
+            id: true,
+            description: true,
+            amount: true,
+            date: true,
+          },
+          orderBy: {
+            date: 'asc',
+          },
+        },
+      },
+      orderBy: {
+        startDate: 'desc',
+      },
+      take: filters?.limit,
+      skip: filters?.offset,
+    });
+
+    // Calcular status e progresso de cada parcela
+    return installments.map(installment => {
+      const now = new Date();
+      const paidTransactions = installment.transactions.filter(t => t.date <= now);
+      const remainingTransactions = installment.transactions.filter(t => t.date > now);
+      
+      const status = remainingTransactions.length === 0 ? 'COMPLETED' : 'ACTIVE';
+      const progress = (paidTransactions.length / installment.installmentCount) * 100;
+      const nextPaymentDate = remainingTransactions.length > 0 ? remainingTransactions[0].date : null;
+      const nextPaymentAmount = remainingTransactions.length > 0 ? remainingTransactions[0].amount : null;
+
+      return {
+        ...installment,
+        status,
+        progress: Math.round(progress),
+        paidInstallments: paidTransactions.length,
+        remainingInstallments: remainingTransactions.length,
+        nextPaymentDate,
+        nextPaymentAmount,
+        totalPaid: paidTransactions.reduce((sum, t) => sum + t.amount, 0),
+        totalRemaining: remainingTransactions.reduce((sum, t) => sum + t.amount, 0),
+      };
+    });
+  }
+
+  async findOneInstallment(userId: number, id: number) {
+    const installment = await this.prisma.installment.findFirst({
+      where: {
+        id,
+        category: {
+          userId: userId,
+        },
+      },
+      include: {
+        category: {
+          select: {
+            id: true,
+            name: true,
+            color: true,
+            icon: true,
+            type: true,
+          },
+        },
+        creditCard: {
+          select: {
+            id: true,
+            name: true,
+            limit: true,
+            closingDay: true,
+            dueDay: true,
+          },
+        },
+        transactions: {
+          select: {
+            id: true,
+            description: true,
+            amount: true,
+            date: true,
+          },
+          orderBy: {
+            date: 'asc',
+          },
+        },
+      },
+    });
+
+    if (!installment) {
+      throw new NotFoundException('Parcela não encontrada');
+    }
+
+    // Calcular informações adicionais
+    const now = new Date();
+    const paidTransactions = installment.transactions.filter(t => t.date <= now);
+    const remainingTransactions = installment.transactions.filter(t => t.date > now);
+    
+    const status = remainingTransactions.length === 0 ? 'COMPLETED' : 'ACTIVE';
+    const progress = (paidTransactions.length / installment.installmentCount) * 100;
+
+    return {
+      ...installment,
+      status,
+      progress: Math.round(progress),
+      paidInstallments: paidTransactions.length,
+      remainingInstallments: remainingTransactions.length,
+      totalPaid: paidTransactions.reduce((sum, t) => sum + t.amount, 0),
+      totalRemaining: remainingTransactions.reduce((sum, t) => sum + t.amount, 0),
+    };
+  }
+
+  async cancelInstallment(userId: number, id: number) {
+    const installment = await this.findOneInstallment(userId, id);
+
+    if (installment.status === 'COMPLETED') {
+      throw new BadRequestException('Não é possível cancelar uma parcela já concluída');
+    }
+
+    return this.prisma.$transaction(async (prisma) => {
+      // Remover transações futuras
+      const futureTransactions = installment.transactions.filter(t => t.date > new Date());
+      
+      for (const transaction of futureTransactions) {
+        await prisma.transaction.delete({
+          where: { id: transaction.id },
+        });
+      }
+
+      // Marcar parcela como cancelada (podemos adicionar um campo status no schema)
+      await prisma.installment.update({
+        where: { id },
+        data: {
+          currentInstallment: installment.paidInstallments,
+          installmentCount: installment.paidInstallments,
+        },
+      });
+
+      return { message: 'Parcela cancelada com sucesso' };
+    });
+  }
+
+  async getInstallmentStatistics(userId: number, filters?: {
+    startDate?: string;
+    endDate?: string;
+    categoryId?: number;
+  }) {
+    const where: any = {
+      category: {
+        userId: userId,
+      },
+    };
+
+    if (filters?.categoryId) {
+      where.categoryId = filters.categoryId;
+    }
+
+    if (filters?.startDate || filters?.endDate) {
+      where.startDate = {};
+      if (filters.startDate) {
+        where.startDate.gte = new Date(filters.startDate);
+      }
+      if (filters.endDate) {
+        where.startDate.lte = new Date(filters.endDate);
+      }
+    }
+
+    const [totalInstallments, activeInstallments, completedInstallments, totalAmount] = await Promise.all([
+      this.prisma.installment.count({ where }),
+      this.prisma.installment.count({
+        where: {
+          ...where,
+          transactions: {
+            some: {
+              date: {
+                gt: new Date(),
+              },
+            },
+          },
+        },
+      }),
+      this.prisma.installment.count({
+        where: {
+          ...where,
+          transactions: {
+            none: {
+              date: {
+                gt: new Date(),
+              },
+            },
+          },
+        },
+      }),
+      this.prisma.installment.aggregate({
+        where,
+        _sum: { totalAmount: true },
+      }),
+    ]);
+
+    // Próximos vencimentos (próximos 30 dias)
+    const nextMonth = new Date();
+    nextMonth.setDate(nextMonth.getDate() + 30);
+
+    const upcomingPayments = await this.prisma.transaction.findMany({
+      where: {
+        date: {
+          gte: new Date(),
+          lte: nextMonth,
+        },
+        userId: userId,
+        description: {
+          contains: '/',
+        },
+      },
+      include: {
+        category: {
+          select: {
+            id: true,
+            name: true,
+            color: true,
+            icon: true,
+          },
+        },
+      },
+      orderBy: {
+        date: 'asc',
+      },
+      take: 10,
+    });
+
+    return {
+      totalInstallments,
+      activeInstallments,
+      completedInstallments,
+      totalAmount: totalAmount._sum.totalAmount || 0,
+      upcomingPayments,
+    };
+  }
+}

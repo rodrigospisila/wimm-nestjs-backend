@@ -15,13 +15,20 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.TransactionsController = void 0;
 const common_1 = require("@nestjs/common");
 const transactions_service_1 = require("./transactions.service");
+const installments_service_1 = require("./installments.service");
+const installments_processor_service_1 = require("./installments-processor.service");
 const create_transaction_dto_1 = require("./dto/create-transaction.dto");
+const create_installment_transaction_dto_1 = require("./dto/create-installment-transaction.dto");
 const update_transaction_dto_1 = require("./dto/update-transaction.dto");
 const jwt_auth_guard_1 = require("../auth/guards/jwt-auth.guard");
 let TransactionsController = class TransactionsController {
     transactionsService;
-    constructor(transactionsService) {
+    installmentsService;
+    installmentsProcessorService;
+    constructor(transactionsService, installmentsService, installmentsProcessorService) {
         this.transactionsService = transactionsService;
+        this.installmentsService = installmentsService;
+        this.installmentsProcessorService = installmentsProcessorService;
     }
     create(req, createTransactionDto) {
         return this.transactionsService.create(req.user.id, createTransactionDto);
@@ -73,6 +80,67 @@ let TransactionsController = class TransactionsController {
     }
     remove(req, id) {
         return this.transactionsService.remove(req.user.id, id);
+    }
+    createInstallment(req, createInstallmentDto) {
+        return this.installmentsService.createInstallmentTransaction(req.user.id, createInstallmentDto);
+    }
+    findAllInstallments(req, categoryId, walletId, creditCardId, status, limit, offset) {
+        const filters = {};
+        if (categoryId)
+            filters.categoryId = parseInt(categoryId);
+        if (walletId)
+            filters.walletId = parseInt(walletId);
+        if (creditCardId)
+            filters.creditCardId = parseInt(creditCardId);
+        if (status)
+            filters.status = status;
+        if (limit)
+            filters.limit = parseInt(limit);
+        if (offset)
+            filters.offset = parseInt(offset);
+        return this.installmentsService.findAllInstallments(req.user.id, filters);
+    }
+    getInstallmentStatistics(req, startDate, endDate, categoryId) {
+        const filters = {};
+        if (startDate)
+            filters.startDate = startDate;
+        if (endDate)
+            filters.endDate = endDate;
+        if (categoryId)
+            filters.categoryId = parseInt(categoryId);
+        return this.installmentsService.getInstallmentStatistics(req.user.id, filters);
+    }
+    findOneInstallment(req, id) {
+        return this.installmentsService.findOneInstallment(req.user.id, id);
+    }
+    cancelInstallment(req, id) {
+        return this.installmentsService.cancelInstallment(req.user.id, id);
+    }
+    getUpcomingPayments(req, days, limit) {
+        const daysAhead = days ? parseInt(days) : 30;
+        const limitResults = limit ? parseInt(limit) : 10;
+        const endDate = new Date();
+        endDate.setDate(endDate.getDate() + daysAhead);
+        return this.transactionsService.findAll(req.user.id, {
+            startDate: new Date().toISOString().split('T')[0],
+            endDate: endDate.toISOString().split('T')[0],
+            limit: limitResults,
+        });
+    }
+    async processInstallments(req) {
+        await this.installmentsProcessorService.processUserInstallments(req.user.id);
+        return { message: 'Parcelas processadas com sucesso' };
+    }
+    async getUpcomingInstallments(req, days) {
+        const daysAhead = days ? parseInt(days) : 7;
+        return this.installmentsProcessorService.getUpcomingInstallments(req.user.id, daysAhead);
+    }
+    async getInstallmentsMonthlyReport(year, month) {
+        return this.installmentsProcessorService.generateMonthlyReport(year, month);
+    }
+    async processAllInstallments() {
+        await this.installmentsProcessorService.processInstallmentsManually();
+        return { message: 'Todas as parcelas foram processadas' };
     }
 };
 exports.TransactionsController = TransactionsController;
@@ -143,9 +211,96 @@ __decorate([
     __metadata("design:paramtypes", [Object, Number]),
     __metadata("design:returntype", void 0)
 ], TransactionsController.prototype, "remove", null);
+__decorate([
+    (0, common_1.Post)('installments'),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Body)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, create_installment_transaction_dto_1.CreateInstallmentTransactionDto]),
+    __metadata("design:returntype", void 0)
+], TransactionsController.prototype, "createInstallment", null);
+__decorate([
+    (0, common_1.Get)('installments'),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Query)('categoryId')),
+    __param(2, (0, common_1.Query)('walletId')),
+    __param(3, (0, common_1.Query)('creditCardId')),
+    __param(4, (0, common_1.Query)('status')),
+    __param(5, (0, common_1.Query)('limit')),
+    __param(6, (0, common_1.Query)('offset')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String, String, String, String, String, String]),
+    __metadata("design:returntype", void 0)
+], TransactionsController.prototype, "findAllInstallments", null);
+__decorate([
+    (0, common_1.Get)('installments/statistics'),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Query)('startDate')),
+    __param(2, (0, common_1.Query)('endDate')),
+    __param(3, (0, common_1.Query)('categoryId')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String, String, String]),
+    __metadata("design:returntype", void 0)
+], TransactionsController.prototype, "getInstallmentStatistics", null);
+__decorate([
+    (0, common_1.Get)('installments/:id'),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Param)('id', common_1.ParseIntPipe)),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, Number]),
+    __metadata("design:returntype", void 0)
+], TransactionsController.prototype, "findOneInstallment", null);
+__decorate([
+    (0, common_1.Delete)('installments/:id'),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Param)('id', common_1.ParseIntPipe)),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, Number]),
+    __metadata("design:returntype", void 0)
+], TransactionsController.prototype, "cancelInstallment", null);
+__decorate([
+    (0, common_1.Get)('upcoming-payments'),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Query)('days')),
+    __param(2, (0, common_1.Query)('limit')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String, String]),
+    __metadata("design:returntype", void 0)
+], TransactionsController.prototype, "getUpcomingPayments", null);
+__decorate([
+    (0, common_1.Post)('installments/process'),
+    __param(0, (0, common_1.Request)()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object]),
+    __metadata("design:returntype", Promise)
+], TransactionsController.prototype, "processInstallments", null);
+__decorate([
+    (0, common_1.Get)('installments/upcoming'),
+    __param(0, (0, common_1.Request)()),
+    __param(1, (0, common_1.Query)('days')),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Object, String]),
+    __metadata("design:returntype", Promise)
+], TransactionsController.prototype, "getUpcomingInstallments", null);
+__decorate([
+    (0, common_1.Get)('installments/monthly-report/:year/:month'),
+    __param(0, (0, common_1.Param)('year', common_1.ParseIntPipe)),
+    __param(1, (0, common_1.Param)('month', common_1.ParseIntPipe)),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number, Number]),
+    __metadata("design:returntype", Promise)
+], TransactionsController.prototype, "getInstallmentsMonthlyReport", null);
+__decorate([
+    (0, common_1.Post)('installments/process-all'),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", []),
+    __metadata("design:returntype", Promise)
+], TransactionsController.prototype, "processAllInstallments", null);
 exports.TransactionsController = TransactionsController = __decorate([
     (0, common_1.Controller)('transactions'),
     (0, common_1.UseGuards)(jwt_auth_guard_1.JwtAuthGuard),
-    __metadata("design:paramtypes", [transactions_service_1.TransactionsService])
+    __metadata("design:paramtypes", [transactions_service_1.TransactionsService,
+        installments_service_1.InstallmentsService,
+        installments_processor_service_1.InstallmentsProcessorService])
 ], TransactionsController);
 //# sourceMappingURL=transactions.controller.js.map
