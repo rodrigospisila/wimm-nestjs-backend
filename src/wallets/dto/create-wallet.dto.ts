@@ -29,4 +29,17 @@ export class CreateWalletDto {
   @IsOptional()
   @MaxLength(30, { message: 'Ícone deve ter no máximo 30 caracteres' })
   icon?: string;
+
+  // Campos específicos para cartão de crédito
+  @IsNumber({}, { message: 'Limite do cartão deve ser um número' })
+  @IsOptional()
+  creditLimit?: number;
+
+  @IsNumber({}, { message: 'Dia do fechamento deve ser um número' })
+  @IsOptional()
+  closingDay?: number;
+
+  @IsNumber({}, { message: 'Dia do vencimento deve ser um número' })
+  @IsOptional()
+  dueDay?: number;
 }

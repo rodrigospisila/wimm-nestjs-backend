@@ -26,18 +26,37 @@ export class WalletsService {
       throw new BadRequestException('Já existe uma carteira com este nome');
     }
 
+    const walletData: any = {
+      name,
+      initialBalance: initialBalance || 0,
+      currentBalance: initialBalance || 0,
+      type: type || WalletType.CHECKING_ACCOUNT,
+      description,
+      color: color || '#4CAF50',
+      icon: icon || 'wallet',
+      isActive: true,
+      userId,
+    };
+
+    // Adicionar campos específicos do cartão de crédito
+    if (type === WalletType.CREDIT_CARD) {
+      const { creditLimit, closingDay, dueDay } = createWalletDto as any;
+      
+      if (!creditLimit || !closingDay || !dueDay) {
+        throw new BadRequestException('Para cartão de crédito, limite, dia do fechamento e dia do vencimento são obrigatórios');
+      }
+
+      if (closingDay < 1 || closingDay > 31 || dueDay < 1 || dueDay > 31) {
+        throw new BadRequestException('Dias devem estar entre 1 e 31');
+      }
+
+      walletData.creditLimit = creditLimit;
+      walletData.closingDay = closingDay;
+      walletData.dueDay = dueDay;
+    }
+
     const wallet = await this.prisma.wallet.create({
-      data: {
-        name,
-        initialBalance: initialBalance || 0,
-        currentBalance: initialBalance || 0,
-        type: type || WalletType.CHECKING_ACCOUNT,
-        description,
-        color: color || '#4CAF50',
-        icon: icon || 'wallet',
-        isActive: true,
-        userId,
-      },
+      data: walletData,
     });
 
     return wallet;
@@ -136,9 +155,26 @@ export class WalletsService {
       }
     }
 
+    const updateData: any = { ...updateWalletDto };
+
+    // Validar campos específicos do cartão de crédito
+    if (updateWalletDto.type === WalletType.CREDIT_CARD || existingWallet.type === WalletType.CREDIT_CARD) {
+      const { creditLimit, closingDay, dueDay } = updateWalletDto as any;
+      
+      if (updateWalletDto.type === WalletType.CREDIT_CARD) {
+        if (!creditLimit || !closingDay || !dueDay) {
+          throw new BadRequestException('Para cartão de crédito, limite, dia do fechamento e dia do vencimento são obrigatórios');
+        }
+
+        if (closingDay < 1 || closingDay > 31 || dueDay < 1 || dueDay > 31) {
+          throw new BadRequestException('Dias devem estar entre 1 e 31');
+        }
+      }
+    }
+
     const wallet = await this.prisma.wallet.update({
       where: { id },
-      data: updateWalletDto,
+      data: updateData,
     });
 
     return wallet;
