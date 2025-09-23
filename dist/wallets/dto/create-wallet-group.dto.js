@@ -8,59 +8,51 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
-var _a;
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.UpdateWalletDto = void 0;
+exports.CreateWalletGroupDto = void 0;
 const class_validator_1 = require("class-validator");
 const client_1 = require("@prisma/client");
-class UpdateWalletDto {
+class CreateWalletGroupDto {
     name;
-    currentBalance;
     type;
     description;
     color;
     icon;
-    isActive;
+    hasIntegratedPix;
+    hasWalletBalance;
 }
-exports.UpdateWalletDto = UpdateWalletDto;
+exports.CreateWalletGroupDto = CreateWalletGroupDto;
+__decorate([
+    (0, class_validator_1.IsString)(),
+    __metadata("design:type", String)
+], CreateWalletGroupDto.prototype, "name", void 0);
+__decorate([
+    (0, class_validator_1.IsEnum)(client_1.WalletGroupType),
+    __metadata("design:type", String)
+], CreateWalletGroupDto.prototype, "type", void 0);
 __decorate([
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsString)(),
-    (0, class_validator_1.MinLength)(2, { message: 'Nome deve ter pelo menos 2 caracteres' }),
-    (0, class_validator_1.MaxLength)(50, { message: 'Nome deve ter no máximo 50 caracteres' }),
     __metadata("design:type", String)
-], UpdateWalletDto.prototype, "name", void 0);
-__decorate([
-    (0, class_validator_1.IsOptional)(),
-    (0, class_validator_1.IsNumber)({}, { message: 'Saldo atual deve ser um número' }),
-    __metadata("design:type", Number)
-], UpdateWalletDto.prototype, "currentBalance", void 0);
-__decorate([
-    (0, class_validator_1.IsOptional)(),
-    (0, class_validator_1.IsEnum)(client_1.WalletType, { message: 'Tipo de carteira inválido' }),
-    __metadata("design:type", typeof (_a = typeof client_1.WalletType !== "undefined" && client_1.WalletType) === "function" ? _a : Object)
-], UpdateWalletDto.prototype, "type", void 0);
+], CreateWalletGroupDto.prototype, "description", void 0);
 __decorate([
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsString)(),
-    (0, class_validator_1.MaxLength)(200, { message: 'Descrição deve ter no máximo 200 caracteres' }),
     __metadata("design:type", String)
-], UpdateWalletDto.prototype, "description", void 0);
+], CreateWalletGroupDto.prototype, "color", void 0);
 __decorate([
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsString)(),
-    (0, class_validator_1.IsHexColor)({ message: 'Cor deve estar no formato hexadecimal (#RRGGBB)' }),
     __metadata("design:type", String)
-], UpdateWalletDto.prototype, "color", void 0);
-__decorate([
-    (0, class_validator_1.IsOptional)(),
-    (0, class_validator_1.IsString)(),
-    (0, class_validator_1.MaxLength)(30, { message: 'Ícone deve ter no máximo 30 caracteres' }),
-    __metadata("design:type", String)
-], UpdateWalletDto.prototype, "icon", void 0);
+], CreateWalletGroupDto.prototype, "icon", void 0);
 __decorate([
     (0, class_validator_1.IsOptional)(),
     (0, class_validator_1.IsBoolean)(),
     __metadata("design:type", Boolean)
-], UpdateWalletDto.prototype, "isActive", void 0);
-//# sourceMappingURL=update-wallet.dto.js.map
+], CreateWalletGroupDto.prototype, "hasIntegratedPix", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsBoolean)(),
+    __metadata("design:type", Boolean)
+], CreateWalletGroupDto.prototype, "hasWalletBalance", void 0);
+//# sourceMappingURL=create-wallet-group.dto.js.map

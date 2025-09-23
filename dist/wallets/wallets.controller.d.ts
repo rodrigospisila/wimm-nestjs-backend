@@ -4,79 +4,13 @@ import { UpdateWalletDto } from './dto/update-wallet.dto';
 export declare class WalletsController {
     private readonly walletsService;
     constructor(walletsService: WalletsService);
-    create(createWalletDto: CreateWalletDto, req: any): Promise<{
-        name: string;
-        id: number;
-        createdAt: Date;
-        updatedAt: Date;
-        initialBalance: number;
-        type: import("@prisma/client").$Enums.WalletType;
-        description: string | null;
-        color: string;
-        icon: string;
-        currentBalance: number;
-        isActive: boolean;
-        userId: number;
-    }>;
-    findAll(req: any, type?: string): Promise<{
-        transactionsCount: number;
-        lastTransactionDate: Date;
-        transactions: ({
-            category: {
-                name: string;
-                id: number;
-                createdAt: Date;
-                updatedAt: Date;
-                type: import("@prisma/client").$Enums.CategoryType;
-                description: string | null;
-                color: string;
-                icon: string;
-                userId: number;
-                monthlyBudget: number | null;
-                parentCategoryId: number | null;
-            };
-        } & {
-            id: number;
-            type: import("@prisma/client").$Enums.TransactionType;
-            description: string;
-            userId: number;
-            date: Date;
-            amount: number;
-            walletId: number;
-            categoryId: number;
-            transferToWalletId: number | null;
-        })[];
-        _count: {
-            transactions: number;
-        };
-        name: string;
-        id: number;
-        createdAt: Date;
-        updatedAt: Date;
-        initialBalance: number;
-        type: import("@prisma/client").$Enums.WalletType;
-        description: string | null;
-        color: string;
-        icon: string;
-        currentBalance: number;
-        isActive: boolean;
-        userId: number;
-    }[]>;
+    create(createWalletDto: CreateWalletDto, req: any): Promise<any>;
+    findAll(req: any, type?: string): Promise<any>;
     getSummary(req: any): Promise<{
-        totalBalance: number;
-        walletsCount: number;
-        walletsByType: Record<string, {
-            count: number;
-            balance: number;
-        }>;
-        wallets: {
-            id: number;
-            name: string;
-            type: import("@prisma/client").$Enums.WalletType;
-            currentBalance: number;
-            color: string;
-            icon: string;
-        }[];
+        totalBalance: any;
+        walletsCount: any;
+        walletsByType: any;
+        wallets: any;
     }>;
     getWalletTypes(): Promise<{
         types: {
@@ -86,95 +20,27 @@ export declare class WalletsController {
         }[];
     }>;
     getStatistics(req: any): Promise<{
-        totalWallets: number;
-        activeWallets: number;
-        totalBalance: number;
-        monthlyTransactions: number;
+        totalWallets: any;
+        activeWallets: any;
+        totalBalance: any;
+        monthlyTransactions: any;
         averageBalance: number;
         highestBalance: number;
         lowestBalance: number;
         mostUsedWallet: any;
     }>;
-    findOne(id: string, req: any): Promise<{
-        transactionsCount: number;
-        transactions: ({
-            category: {
-                name: string;
-                id: number;
-                createdAt: Date;
-                updatedAt: Date;
-                type: import("@prisma/client").$Enums.CategoryType;
-                description: string | null;
-                color: string;
-                icon: string;
-                userId: number;
-                monthlyBudget: number | null;
-                parentCategoryId: number | null;
-            };
-        } & {
-            id: number;
-            type: import("@prisma/client").$Enums.TransactionType;
-            description: string;
-            userId: number;
-            date: Date;
-            amount: number;
-            walletId: number;
-            categoryId: number;
-            transferToWalletId: number | null;
-        })[];
-        _count: {
-            transactions: number;
-        };
-        name: string;
-        id: number;
-        createdAt: Date;
-        updatedAt: Date;
-        initialBalance: number;
-        type: import("@prisma/client").$Enums.WalletType;
-        description: string | null;
-        color: string;
-        icon: string;
-        currentBalance: number;
-        isActive: boolean;
-        userId: number;
-    }>;
+    findOne(id: string, req: any): Promise<any>;
     getBalanceHistory(id: string, req: any, days?: string): Promise<{
         walletId: number;
-        walletName: string;
+        walletName: any;
         period: string;
         history: {
             date: Date;
             balance: number;
         }[];
     }>;
-    update(id: string, updateWalletDto: UpdateWalletDto, req: any): Promise<{
-        name: string;
-        id: number;
-        createdAt: Date;
-        updatedAt: Date;
-        initialBalance: number;
-        type: import("@prisma/client").$Enums.WalletType;
-        description: string | null;
-        color: string;
-        icon: string;
-        currentBalance: number;
-        isActive: boolean;
-        userId: number;
-    }>;
-    toggleActive(id: string, req: any): Promise<{
-        name: string;
-        id: number;
-        createdAt: Date;
-        updatedAt: Date;
-        initialBalance: number;
-        type: import("@prisma/client").$Enums.WalletType;
-        description: string | null;
-        color: string;
-        icon: string;
-        currentBalance: number;
-        isActive: boolean;
-        userId: number;
-    }>;
+    update(id: string, updateWalletDto: UpdateWalletDto, req: any): Promise<any>;
+    toggleActive(id: string, req: any): Promise<any>;
     remove(id: string, req: any): Promise<{
         message: string;
     }>;

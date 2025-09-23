@@ -3,11 +3,11 @@ export declare class ReportsController {
     private readonly reportsService;
     constructor(reportsService: ReportsService);
     getDashboard(req: any, startDate?: string, endDate?: string): Promise<{
-        totalBalance: number;
+        totalBalance: any;
         monthlyIncome: number;
         monthlyExpenses: number;
         monthlyBalance: number;
-        walletsCount: number;
+        walletsCount: any;
         transactionsCount: number;
         categoriesCount: number;
         pendingInstallments: number;
@@ -74,15 +74,10 @@ export declare class ReportsController {
             nextDueDate: string | null;
             status: "ACTIVE" | "COMPLETED" | "OVERDUE";
             installmentType: import("@prisma/client").$Enums.InstallmentType;
-            category: {
-                name: string;
-                id: number;
-                color: string;
-                icon: string;
-            };
+            category: any;
             wallet: {
-                id: number;
-                name: string;
+                id: any;
+                name: any;
                 color: string;
                 icon: string;
             } | null;

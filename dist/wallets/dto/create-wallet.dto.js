@@ -8,6 +8,7 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
+var _a;
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CreateWalletDto = void 0;
 const class_validator_1 = require("class-validator");
@@ -19,6 +20,9 @@ class CreateWalletDto {
     description;
     color;
     icon;
+    creditLimit;
+    closingDay;
+    dueDay;
 }
 exports.CreateWalletDto = CreateWalletDto;
 __decorate([
@@ -35,7 +39,7 @@ __decorate([
 __decorate([
     (0, class_validator_1.IsEnum)(client_1.WalletType, { message: 'Tipo de carteira inválido' }),
     (0, class_validator_1.IsOptional)(),
-    __metadata("design:type", String)
+    __metadata("design:type", typeof (_a = typeof client_1.WalletType !== "undefined" && client_1.WalletType) === "function" ? _a : Object)
 ], CreateWalletDto.prototype, "type", void 0);
 __decorate([
     (0, class_validator_1.IsString)(),
@@ -55,4 +59,19 @@ __decorate([
     (0, class_validator_1.MaxLength)(30, { message: 'Ícone deve ter no máximo 30 caracteres' }),
     __metadata("design:type", String)
 ], CreateWalletDto.prototype, "icon", void 0);
+__decorate([
+    (0, class_validator_1.IsNumber)({}, { message: 'Limite do cartão deve ser um número' }),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", Number)
+], CreateWalletDto.prototype, "creditLimit", void 0);
+__decorate([
+    (0, class_validator_1.IsNumber)({}, { message: 'Dia do fechamento deve ser um número' }),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", Number)
+], CreateWalletDto.prototype, "closingDay", void 0);
+__decorate([
+    (0, class_validator_1.IsNumber)({}, { message: 'Dia do vencimento deve ser um número' }),
+    (0, class_validator_1.IsOptional)(),
+    __metadata("design:type", Number)
+], CreateWalletDto.prototype, "dueDay", void 0);
 //# sourceMappingURL=create-wallet.dto.js.map

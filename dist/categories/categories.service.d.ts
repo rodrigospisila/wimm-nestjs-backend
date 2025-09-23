@@ -172,62 +172,6 @@ export declare class CategoriesService {
         parentCategoryId: number | null;
     }[]>;
     findOne(userId: number, id: number): Promise<{
-        transactions: ({
-            wallet: {
-                name: string;
-                id: number;
-                createdAt: Date;
-                updatedAt: Date;
-                initialBalance: number;
-                type: import("@prisma/client").$Enums.WalletType;
-                description: string | null;
-                color: string;
-                icon: string;
-                currentBalance: number;
-                isActive: boolean;
-                userId: number;
-            };
-        } & {
-            id: number;
-            type: import("@prisma/client").$Enums.TransactionType;
-            description: string;
-            userId: number;
-            date: Date;
-            amount: number;
-            walletId: number;
-            categoryId: number;
-            transferToWalletId: number | null;
-        })[];
-        _count: {
-            transactions: number;
-        };
-        parentCategory: {
-            name: string;
-            id: number;
-            createdAt: Date;
-            updatedAt: Date;
-            type: import("@prisma/client").$Enums.CategoryType;
-            description: string | null;
-            color: string;
-            icon: string;
-            userId: number;
-            monthlyBudget: number | null;
-            parentCategoryId: number | null;
-        } | null;
-        subCategories: {
-            name: string;
-            id: number;
-            createdAt: Date;
-            updatedAt: Date;
-            type: import("@prisma/client").$Enums.CategoryType;
-            description: string | null;
-            color: string;
-            icon: string;
-            userId: number;
-            monthlyBudget: number | null;
-            parentCategoryId: number | null;
-        }[];
-    } & {
         name: string;
         id: number;
         createdAt: Date;

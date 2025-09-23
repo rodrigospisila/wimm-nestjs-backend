@@ -1,0 +1,165 @@
+import { PrismaService } from '../prisma/prisma.service';
+import { CreateWalletGroupDto } from './dto/create-wallet-group.dto';
+export declare class WalletGroupsService {
+    private prisma;
+    constructor(prisma: PrismaService);
+    create(userId: number, createWalletGroupDto: CreateWalletGroupDto): Promise<{
+        paymentMethods: {
+            name: string;
+            id: number;
+            createdAt: Date;
+            updatedAt: Date;
+            type: import("@prisma/client").$Enums.PaymentMethodType;
+            color: string;
+            icon: string;
+            creditLimit: number | null;
+            closingDay: number | null;
+            dueDay: number | null;
+            currentBalance: number;
+            isActive: boolean;
+            userId: number;
+            isPrimary: boolean;
+            walletGroupId: number | null;
+            availableLimit: number | null;
+            accountNumber: string | null;
+            agency: string | null;
+            bankCode: string | null;
+        }[];
+    } & {
+        name: string;
+        id: number;
+        createdAt: Date;
+        updatedAt: Date;
+        type: import("@prisma/client").$Enums.WalletGroupType;
+        description: string | null;
+        color: string;
+        icon: string;
+        isActive: boolean;
+        userId: number;
+        hasIntegratedPix: boolean;
+        hasWalletBalance: boolean;
+    }>;
+    findAll(userId: number): Promise<({
+        paymentMethods: {
+            name: string;
+            id: number;
+            createdAt: Date;
+            updatedAt: Date;
+            type: import("@prisma/client").$Enums.PaymentMethodType;
+            color: string;
+            icon: string;
+            creditLimit: number | null;
+            closingDay: number | null;
+            dueDay: number | null;
+            currentBalance: number;
+            isActive: boolean;
+            userId: number;
+            isPrimary: boolean;
+            walletGroupId: number | null;
+            availableLimit: number | null;
+            accountNumber: string | null;
+            agency: string | null;
+            bankCode: string | null;
+        }[];
+    } & {
+        name: string;
+        id: number;
+        createdAt: Date;
+        updatedAt: Date;
+        type: import("@prisma/client").$Enums.WalletGroupType;
+        description: string | null;
+        color: string;
+        icon: string;
+        isActive: boolean;
+        userId: number;
+        hasIntegratedPix: boolean;
+        hasWalletBalance: boolean;
+    })[]>;
+    findOne(id: number, userId: number): Promise<{
+        paymentMethods: {
+            name: string;
+            id: number;
+            createdAt: Date;
+            updatedAt: Date;
+            type: import("@prisma/client").$Enums.PaymentMethodType;
+            color: string;
+            icon: string;
+            creditLimit: number | null;
+            closingDay: number | null;
+            dueDay: number | null;
+            currentBalance: number;
+            isActive: boolean;
+            userId: number;
+            isPrimary: boolean;
+            walletGroupId: number | null;
+            availableLimit: number | null;
+            accountNumber: string | null;
+            agency: string | null;
+            bankCode: string | null;
+        }[];
+    } & {
+        name: string;
+        id: number;
+        createdAt: Date;
+        updatedAt: Date;
+        type: import("@prisma/client").$Enums.WalletGroupType;
+        description: string | null;
+        color: string;
+        icon: string;
+        isActive: boolean;
+        userId: number;
+        hasIntegratedPix: boolean;
+        hasWalletBalance: boolean;
+    }>;
+    update(id: number, userId: number, updateData: Partial<CreateWalletGroupDto>): Promise<{
+        paymentMethods: {
+            name: string;
+            id: number;
+            createdAt: Date;
+            updatedAt: Date;
+            type: import("@prisma/client").$Enums.PaymentMethodType;
+            color: string;
+            icon: string;
+            creditLimit: number | null;
+            closingDay: number | null;
+            dueDay: number | null;
+            currentBalance: number;
+            isActive: boolean;
+            userId: number;
+            isPrimary: boolean;
+            walletGroupId: number | null;
+            availableLimit: number | null;
+            accountNumber: string | null;
+            agency: string | null;
+            bankCode: string | null;
+        }[];
+    } & {
+        name: string;
+        id: number;
+        createdAt: Date;
+        updatedAt: Date;
+        type: import("@prisma/client").$Enums.WalletGroupType;
+        description: string | null;
+        color: string;
+        icon: string;
+        isActive: boolean;
+        userId: number;
+        hasIntegratedPix: boolean;
+        hasWalletBalance: boolean;
+    }>;
+    remove(id: number, userId: number): Promise<{
+        name: string;
+        id: number;
+        createdAt: Date;
+        updatedAt: Date;
+        type: import("@prisma/client").$Enums.WalletGroupType;
+        description: string | null;
+        color: string;
+        icon: string;
+        isActive: boolean;
+        userId: number;
+        hasIntegratedPix: boolean;
+        hasWalletBalance: boolean;
+    }>;
+    createDefaultWalletGroups(userId: number): Promise<never[]>;
+}

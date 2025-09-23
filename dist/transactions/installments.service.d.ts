@@ -4,48 +4,24 @@ export declare class InstallmentsService {
     private prisma;
     constructor(prisma: PrismaService);
     createInstallmentTransaction(userId: number, createInstallmentDto: CreateInstallmentTransactionDto): Promise<{
-        installment: ({
-            category: {
-                name: string;
-                id: number;
-                type: import("@prisma/client").$Enums.CategoryType;
-                color: string;
-                icon: string;
-            };
-            creditCard: {
-                name: string;
-                id: number;
-                userId: number;
-                limit: number;
-                dueDay: number;
-                closingDay: number;
-                bankCode: string | null;
-            } | null;
-            transactions: {
-                id: number;
-                description: string;
-                date: Date;
-                amount: number;
-                categoryId: number;
-                creditCardId: number;
-                installmentId: number | null;
-            }[];
-        } & {
+        installment: {
             id: number;
             createdAt: Date;
             updatedAt: Date;
             description: string;
             isActive: boolean;
+            paymentMethodId: number;
             categoryId: number;
+            subcategoryId: number | null;
             notes: string | null;
             tags: string | null;
+            userId: number;
             startDate: Date;
             totalAmount: number;
             installmentCount: number;
             installmentType: import("@prisma/client").$Enums.InstallmentType;
-            creditCardId: number | null;
             currentInstallment: number;
-        }) | null;
+        } | null;
         transactions: any[];
         summary: {
             totalAmount: number;
@@ -65,87 +41,51 @@ export declare class InstallmentsService {
     }): Promise<{
         status: string;
         progress: number;
-        paidInstallments: number;
-        remainingInstallments: number;
-        nextPaymentDate: Date | null;
-        nextPaymentAmount: number | null;
-        totalPaid: number;
-        totalRemaining: number;
-        category: {
-            name: string;
-            id: number;
-            type: import("@prisma/client").$Enums.CategoryType;
-            color: string;
-            icon: string;
-        };
-        creditCard: {
-            name: string;
-            id: number;
-            limit: number;
-            dueDay: number;
-            closingDay: number;
-        } | null;
-        transactions: {
-            id: number;
-            description: string;
-            date: Date;
-            amount: number;
-        }[];
+        paidInstallments: any;
+        remainingInstallments: any;
+        nextPaymentDate: any;
+        nextPaymentAmount: any;
+        totalPaid: any;
+        totalRemaining: any;
         id: number;
         createdAt: Date;
         updatedAt: Date;
         description: string;
         isActive: boolean;
+        paymentMethodId: number;
         categoryId: number;
+        subcategoryId: number | null;
         notes: string | null;
         tags: string | null;
+        userId: number;
         startDate: Date;
         totalAmount: number;
         installmentCount: number;
         installmentType: import("@prisma/client").$Enums.InstallmentType;
-        creditCardId: number | null;
         currentInstallment: number;
     }[]>;
     findOneInstallment(userId: number, id: number): Promise<{
         status: string;
         progress: number;
-        paidInstallments: number;
-        remainingInstallments: number;
-        totalPaid: number;
-        totalRemaining: number;
-        category: {
-            name: string;
-            id: number;
-            type: import("@prisma/client").$Enums.CategoryType;
-            color: string;
-            icon: string;
-        };
-        creditCard: {
-            name: string;
-            id: number;
-            limit: number;
-            dueDay: number;
-            closingDay: number;
-        } | null;
-        transactions: {
-            id: number;
-            description: string;
-            date: Date;
-            amount: number;
-        }[];
+        paidInstallments: any;
+        remainingInstallments: any;
+        totalPaid: any;
+        totalRemaining: any;
         id: number;
         createdAt: Date;
         updatedAt: Date;
         description: string;
         isActive: boolean;
+        paymentMethodId: number;
         categoryId: number;
+        subcategoryId: number | null;
         notes: string | null;
         tags: string | null;
+        userId: number;
         startDate: Date;
         totalAmount: number;
         installmentCount: number;
         installmentType: import("@prisma/client").$Enums.InstallmentType;
-        creditCardId: number | null;
         currentInstallment: number;
     }>;
     cancelInstallment(userId: number, id: number): Promise<{
@@ -169,14 +109,23 @@ export declare class InstallmentsService {
             };
         } & {
             id: number;
+            createdAt: Date;
+            updatedAt: Date;
             type: import("@prisma/client").$Enums.TransactionType;
             description: string;
-            userId: number;
-            date: Date;
             amount: number;
-            walletId: number;
+            date: Date;
+            paymentMethodId: number;
             categoryId: number;
-            transferToWalletId: number | null;
+            subcategoryId: number | null;
+            creditCardBillId: number | null;
+            installmentId: number | null;
+            installmentNumber: number | null;
+            transferToMethodId: number | null;
+            notes: string | null;
+            tags: string | null;
+            isRecurring: boolean;
+            userId: number;
         })[];
     }>;
 }

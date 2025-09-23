@@ -5,29 +5,24 @@ export declare class TransactionsService {
     private prisma;
     constructor(prisma: PrismaService);
     create(userId: number, createTransactionDto: CreateTransactionDto): Promise<{
-        wallet: {
-            name: string;
-            id: number;
-            color: string;
-            icon: string;
-        };
-        category: {
-            name: string;
-            id: number;
-            type: import("@prisma/client").$Enums.CategoryType;
-            color: string;
-            icon: string;
-        };
-    } & {
         id: number;
+        createdAt: Date;
+        updatedAt: Date;
         type: import("@prisma/client").$Enums.TransactionType;
         description: string;
-        userId: number;
-        date: Date;
         amount: number;
-        walletId: number;
+        date: Date;
+        paymentMethodId: number;
         categoryId: number;
-        transferToWalletId: number | null;
+        subcategoryId: number | null;
+        creditCardBillId: number | null;
+        installmentId: number | null;
+        installmentNumber: number | null;
+        transferToMethodId: number | null;
+        notes: string | null;
+        tags: string | null;
+        isRecurring: boolean;
+        userId: number;
     }>;
     findAll(userId: number, filters?: {
         type?: string;
@@ -37,80 +32,65 @@ export declare class TransactionsService {
         endDate?: string;
         limit?: number;
         offset?: number;
-    }): Promise<({
-        wallet: {
-            name: string;
-            id: number;
-            color: string;
-            icon: string;
-        };
-        category: {
-            name: string;
-            id: number;
-            type: import("@prisma/client").$Enums.CategoryType;
-            color: string;
-            icon: string;
-        };
-    } & {
+    }): Promise<{
         id: number;
+        createdAt: Date;
+        updatedAt: Date;
         type: import("@prisma/client").$Enums.TransactionType;
         description: string;
-        userId: number;
-        date: Date;
         amount: number;
-        walletId: number;
+        date: Date;
+        paymentMethodId: number;
         categoryId: number;
-        transferToWalletId: number | null;
-    })[]>;
+        subcategoryId: number | null;
+        creditCardBillId: number | null;
+        installmentId: number | null;
+        installmentNumber: number | null;
+        transferToMethodId: number | null;
+        notes: string | null;
+        tags: string | null;
+        isRecurring: boolean;
+        userId: number;
+    }[]>;
     findOne(userId: number, id: number): Promise<{
-        wallet: {
-            name: string;
-            id: number;
-            color: string;
-            icon: string;
-        };
-        category: {
-            name: string;
-            id: number;
-            type: import("@prisma/client").$Enums.CategoryType;
-            color: string;
-            icon: string;
-        };
-    } & {
         id: number;
+        createdAt: Date;
+        updatedAt: Date;
         type: import("@prisma/client").$Enums.TransactionType;
         description: string;
-        userId: number;
-        date: Date;
         amount: number;
-        walletId: number;
+        date: Date;
+        paymentMethodId: number;
         categoryId: number;
-        transferToWalletId: number | null;
+        subcategoryId: number | null;
+        creditCardBillId: number | null;
+        installmentId: number | null;
+        installmentNumber: number | null;
+        transferToMethodId: number | null;
+        notes: string | null;
+        tags: string | null;
+        isRecurring: boolean;
+        userId: number;
     }>;
     update(userId: number, id: number, updateTransactionDto: UpdateTransactionDto): Promise<{
-        wallet: {
-            name: string;
-            id: number;
-            color: string;
-            icon: string;
-        };
-        category: {
-            name: string;
-            id: number;
-            type: import("@prisma/client").$Enums.CategoryType;
-            color: string;
-            icon: string;
-        };
-    } & {
         id: number;
+        createdAt: Date;
+        updatedAt: Date;
         type: import("@prisma/client").$Enums.TransactionType;
         description: string;
-        userId: number;
-        date: Date;
         amount: number;
-        walletId: number;
+        date: Date;
+        paymentMethodId: number;
         categoryId: number;
-        transferToWalletId: number | null;
+        subcategoryId: number | null;
+        creditCardBillId: number | null;
+        installmentId: number | null;
+        installmentNumber: number | null;
+        transferToMethodId: number | null;
+        notes: string | null;
+        tags: string | null;
+        isRecurring: boolean;
+        userId: number;
     }>;
     remove(userId: number, id: number): Promise<{
         message: string;
@@ -136,31 +116,26 @@ export declare class TransactionsService {
             transactionCount: number;
             averageTransaction: number;
         };
-        transactions: ({
-            wallet: {
-                name: string;
-                id: number;
-                color: string;
-                icon: string;
-            };
-            category: {
-                name: string;
-                id: number;
-                type: import("@prisma/client").$Enums.CategoryType;
-                color: string;
-                icon: string;
-            };
-        } & {
+        transactions: {
             id: number;
+            createdAt: Date;
+            updatedAt: Date;
             type: import("@prisma/client").$Enums.TransactionType;
             description: string;
-            userId: number;
-            date: Date;
             amount: number;
-            walletId: number;
+            date: Date;
+            paymentMethodId: number;
             categoryId: number;
-            transferToWalletId: number | null;
-        })[];
+            subcategoryId: number | null;
+            creditCardBillId: number | null;
+            installmentId: number | null;
+            installmentNumber: number | null;
+            transferToMethodId: number | null;
+            notes: string | null;
+            tags: string | null;
+            isRecurring: boolean;
+            userId: number;
+        }[];
         byCategory: unknown[];
         byWallet: unknown[];
     }>;

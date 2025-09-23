@@ -12,52 +12,22 @@ export declare class InstallmentsProcessorService {
     processInstallmentsManually(): Promise<void>;
     processUserInstallments(userId: number): Promise<void>;
     generateMonthlyReport(year: number, month: number): Promise<any>;
-    getUpcomingInstallments(userId: number, days?: number): Promise<({
-        category: {
-            name: string;
-            id: number;
-            createdAt: Date;
-            updatedAt: Date;
-            type: import("@prisma/client").$Enums.CategoryType;
-            description: string | null;
-            color: string;
-            icon: string;
-            userId: number;
-            monthlyBudget: number | null;
-            parentCategoryId: number | null;
-        };
-        creditCard: {
-            name: string;
-            id: number;
-            userId: number;
-            limit: number;
-            dueDay: number;
-            closingDay: number;
-            bankCode: string | null;
-        } | null;
-        transactions: {
-            id: number;
-            description: string;
-            date: Date;
-            amount: number;
-            categoryId: number;
-            creditCardId: number;
-            installmentId: number | null;
-        }[];
-    } & {
+    getUpcomingInstallments(userId: number, days?: number): Promise<{
         id: number;
         createdAt: Date;
         updatedAt: Date;
         description: string;
         isActive: boolean;
+        paymentMethodId: number;
         categoryId: number;
+        subcategoryId: number | null;
         notes: string | null;
         tags: string | null;
+        userId: number;
         startDate: Date;
         totalAmount: number;
         installmentCount: number;
         installmentType: import("@prisma/client").$Enums.InstallmentType;
-        creditCardId: number | null;
         currentInstallment: number;
-    })[]>;
+    }[]>;
 }

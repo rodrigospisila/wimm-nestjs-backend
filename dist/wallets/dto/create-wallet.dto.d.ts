@@ -6,4 +6,7 @@ export declare class CreateWalletDto {
     description?: string;
     color?: string;
     icon?: string;
+    creditLimit?: number;
+    closingDay?: number;
+    dueDay?: number;
 }
