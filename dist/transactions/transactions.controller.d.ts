@@ -11,53 +11,53 @@ export declare class TransactionsController {
     constructor(transactionsService: TransactionsService, installmentsService: InstallmentsService, installmentsProcessorService: InstallmentsProcessorService);
     create(req: any, createTransactionDto: CreateTransactionDto): Promise<{
         wallet: {
-            id: number;
             name: string;
+            id: number;
             color: string;
             icon: string;
         };
         category: {
-            type: import("@prisma/client").$Enums.CategoryType;
-            id: number;
             name: string;
+            id: number;
+            type: import("@prisma/client").$Enums.CategoryType;
             color: string;
             icon: string;
         };
     } & {
-        description: string;
-        amount: number;
-        date: Date;
-        type: import("@prisma/client").$Enums.TransactionType;
-        transferToWalletId: number | null;
         id: number;
+        type: import("@prisma/client").$Enums.TransactionType;
+        description: string;
+        userId: number;
+        date: Date;
+        amount: number;
         walletId: number;
         categoryId: number;
-        userId: number;
+        transferToWalletId: number | null;
     }>;
     findAll(req: any, type?: string, categoryId?: string, walletId?: string, startDate?: string, endDate?: string, limit?: string, offset?: string): Promise<({
         wallet: {
-            id: number;
             name: string;
+            id: number;
             color: string;
             icon: string;
         };
         category: {
-            type: import("@prisma/client").$Enums.CategoryType;
-            id: number;
             name: string;
+            id: number;
+            type: import("@prisma/client").$Enums.CategoryType;
             color: string;
             icon: string;
         };
     } & {
-        description: string;
-        amount: number;
-        date: Date;
-        type: import("@prisma/client").$Enums.TransactionType;
-        transferToWalletId: number | null;
         id: number;
+        type: import("@prisma/client").$Enums.TransactionType;
+        description: string;
+        userId: number;
+        date: Date;
+        amount: number;
         walletId: number;
         categoryId: number;
-        userId: number;
+        transferToWalletId: number | null;
     })[]>;
     getStatistics(req: any, startDate?: string, endDate?: string, categoryId?: string, walletId?: string): Promise<{
         totalIncome: number;
@@ -77,28 +77,28 @@ export declare class TransactionsController {
         };
         transactions: ({
             wallet: {
-                id: number;
                 name: string;
+                id: number;
                 color: string;
                 icon: string;
             };
             category: {
-                type: import("@prisma/client").$Enums.CategoryType;
-                id: number;
                 name: string;
+                id: number;
+                type: import("@prisma/client").$Enums.CategoryType;
                 color: string;
                 icon: string;
             };
         } & {
-            description: string;
-            amount: number;
-            date: Date;
-            type: import("@prisma/client").$Enums.TransactionType;
-            transferToWalletId: number | null;
             id: number;
+            type: import("@prisma/client").$Enums.TransactionType;
+            description: string;
+            userId: number;
+            date: Date;
+            amount: number;
             walletId: number;
             categoryId: number;
-            userId: number;
+            transferToWalletId: number | null;
         })[];
         byCategory: unknown[];
         byWallet: unknown[];
@@ -106,45 +106,45 @@ export declare class TransactionsController {
     createInstallment(req: any, createInstallmentDto: CreateInstallmentTransactionDto): Promise<{
         installment: ({
             category: {
-                type: import("@prisma/client").$Enums.CategoryType;
-                id: number;
                 name: string;
+                id: number;
+                type: import("@prisma/client").$Enums.CategoryType;
                 color: string;
                 icon: string;
             };
             creditCard: {
+                name: string;
                 id: number;
                 userId: number;
-                name: string;
                 limit: number;
                 dueDay: number;
                 closingDay: number;
                 bankCode: string | null;
             } | null;
             transactions: {
-                description: string;
-                amount: number;
-                date: Date;
                 id: number;
+                description: string;
+                date: Date;
+                amount: number;
                 categoryId: number;
                 creditCardId: number;
                 installmentId: number | null;
             }[];
         } & {
-            description: string;
             id: number;
+            createdAt: Date;
+            updatedAt: Date;
+            description: string;
+            isActive: boolean;
             categoryId: number;
             notes: string | null;
             tags: string | null;
-            createdAt: Date;
-            updatedAt: Date;
-            isActive: boolean;
             startDate: Date;
             totalAmount: number;
             installmentCount: number;
-            currentInstallment: number;
-            creditCardId: number | null;
             installmentType: import("@prisma/client").$Enums.InstallmentType;
+            creditCardId: number | null;
+            currentInstallment: number;
         }) | null;
         transactions: any[];
         summary: {
@@ -165,39 +165,39 @@ export declare class TransactionsController {
         totalPaid: number;
         totalRemaining: number;
         category: {
-            type: import("@prisma/client").$Enums.CategoryType;
-            id: number;
             name: string;
+            id: number;
+            type: import("@prisma/client").$Enums.CategoryType;
             color: string;
             icon: string;
         };
         creditCard: {
-            id: number;
             name: string;
+            id: number;
             limit: number;
             dueDay: number;
             closingDay: number;
         } | null;
         transactions: {
-            description: string;
-            amount: number;
-            date: Date;
             id: number;
+            description: string;
+            date: Date;
+            amount: number;
         }[];
-        description: string;
         id: number;
+        createdAt: Date;
+        updatedAt: Date;
+        description: string;
+        isActive: boolean;
         categoryId: number;
         notes: string | null;
         tags: string | null;
-        createdAt: Date;
-        updatedAt: Date;
-        isActive: boolean;
         startDate: Date;
         totalAmount: number;
         installmentCount: number;
-        currentInstallment: number;
-        creditCardId: number | null;
         installmentType: import("@prisma/client").$Enums.InstallmentType;
+        creditCardId: number | null;
+        currentInstallment: number;
     }[]>;
     getInstallmentStatistics(req: any, startDate?: string, endDate?: string, categoryId?: string): Promise<{
         totalInstallments: number;
@@ -206,21 +206,21 @@ export declare class TransactionsController {
         totalAmount: number;
         upcomingPayments: ({
             category: {
-                id: number;
                 name: string;
+                id: number;
                 color: string;
                 icon: string;
             };
         } & {
-            description: string;
-            amount: number;
-            date: Date;
-            type: import("@prisma/client").$Enums.TransactionType;
-            transferToWalletId: number | null;
             id: number;
+            type: import("@prisma/client").$Enums.TransactionType;
+            description: string;
+            userId: number;
+            date: Date;
+            amount: number;
             walletId: number;
             categoryId: number;
-            userId: number;
+            transferToWalletId: number | null;
         })[];
     }>;
     findOneInstallment(req: any, id: number): Promise<{
@@ -231,118 +231,118 @@ export declare class TransactionsController {
         totalPaid: number;
         totalRemaining: number;
         category: {
-            type: import("@prisma/client").$Enums.CategoryType;
-            id: number;
             name: string;
+            id: number;
+            type: import("@prisma/client").$Enums.CategoryType;
             color: string;
             icon: string;
         };
         creditCard: {
-            id: number;
             name: string;
+            id: number;
             limit: number;
             dueDay: number;
             closingDay: number;
         } | null;
         transactions: {
-            description: string;
-            amount: number;
-            date: Date;
             id: number;
+            description: string;
+            date: Date;
+            amount: number;
         }[];
-        description: string;
         id: number;
+        createdAt: Date;
+        updatedAt: Date;
+        description: string;
+        isActive: boolean;
         categoryId: number;
         notes: string | null;
         tags: string | null;
-        createdAt: Date;
-        updatedAt: Date;
-        isActive: boolean;
         startDate: Date;
         totalAmount: number;
         installmentCount: number;
-        currentInstallment: number;
-        creditCardId: number | null;
         installmentType: import("@prisma/client").$Enums.InstallmentType;
+        creditCardId: number | null;
+        currentInstallment: number;
     }>;
     cancelInstallment(req: any, id: number): Promise<{
         message: string;
     }>;
     getUpcomingPayments(req: any, days?: string, limit?: string): Promise<({
         wallet: {
-            id: number;
             name: string;
+            id: number;
             color: string;
             icon: string;
         };
         category: {
-            type: import("@prisma/client").$Enums.CategoryType;
-            id: number;
             name: string;
+            id: number;
+            type: import("@prisma/client").$Enums.CategoryType;
             color: string;
             icon: string;
         };
     } & {
-        description: string;
-        amount: number;
-        date: Date;
-        type: import("@prisma/client").$Enums.TransactionType;
-        transferToWalletId: number | null;
         id: number;
+        type: import("@prisma/client").$Enums.TransactionType;
+        description: string;
+        userId: number;
+        date: Date;
+        amount: number;
         walletId: number;
         categoryId: number;
-        userId: number;
+        transferToWalletId: number | null;
     })[]>;
     processInstallments(req: any): Promise<{
         message: string;
     }>;
     getUpcomingInstallments(req: any, days?: string): Promise<({
         category: {
-            description: string | null;
-            type: import("@prisma/client").$Enums.CategoryType;
-            id: number;
-            userId: number;
             name: string;
-            color: string;
-            icon: string;
-            monthlyBudget: number | null;
-            parentCategoryId: number | null;
+            id: number;
             createdAt: Date;
             updatedAt: Date;
+            type: import("@prisma/client").$Enums.CategoryType;
+            description: string | null;
+            color: string;
+            icon: string;
+            userId: number;
+            monthlyBudget: number | null;
+            parentCategoryId: number | null;
         };
         creditCard: {
+            name: string;
             id: number;
             userId: number;
-            name: string;
             limit: number;
             dueDay: number;
             closingDay: number;
             bankCode: string | null;
         } | null;
         transactions: {
-            description: string;
-            amount: number;
-            date: Date;
             id: number;
+            description: string;
+            date: Date;
+            amount: number;
             categoryId: number;
             creditCardId: number;
             installmentId: number | null;
         }[];
     } & {
-        description: string;
         id: number;
+        createdAt: Date;
+        updatedAt: Date;
+        description: string;
+        isActive: boolean;
         categoryId: number;
         notes: string | null;
         tags: string | null;
-        createdAt: Date;
-        updatedAt: Date;
-        isActive: boolean;
         startDate: Date;
         totalAmount: number;
         installmentCount: number;
-        currentInstallment: number;
-        creditCardId: number | null;
         installmentType: import("@prisma/client").$Enums.InstallmentType;
+        creditCardId: number | null;
+        currentInstallment: number;
     })[]>;
     getInstallmentsMonthlyReport(year: number, month: number): Promise<any>;
     processAllInstallments(): Promise<{
@@ -350,53 +350,53 @@ export declare class TransactionsController {
     }>;
     findOne(req: any, id: number): Promise<{
         wallet: {
-            id: number;
             name: string;
+            id: number;
             color: string;
             icon: string;
         };
         category: {
-            type: import("@prisma/client").$Enums.CategoryType;
-            id: number;
             name: string;
+            id: number;
+            type: import("@prisma/client").$Enums.CategoryType;
             color: string;
             icon: string;
         };
     } & {
-        description: string;
-        amount: number;
-        date: Date;
-        type: import("@prisma/client").$Enums.TransactionType;
-        transferToWalletId: number | null;
         id: number;
+        type: import("@prisma/client").$Enums.TransactionType;
+        description: string;
+        userId: number;
+        date: Date;
+        amount: number;
         walletId: number;
         categoryId: number;
-        userId: number;
+        transferToWalletId: number | null;
     }>;
     update(req: any, id: number, updateTransactionDto: UpdateTransactionDto): Promise<{
         wallet: {
-            id: number;
             name: string;
+            id: number;
             color: string;
             icon: string;
         };
         category: {
-            type: import("@prisma/client").$Enums.CategoryType;
-            id: number;
             name: string;
+            id: number;
+            type: import("@prisma/client").$Enums.CategoryType;
             color: string;
             icon: string;
         };
     } & {
-        description: string;
-        amount: number;
-        date: Date;
-        type: import("@prisma/client").$Enums.TransactionType;
-        transferToWalletId: number | null;
         id: number;
+        type: import("@prisma/client").$Enums.TransactionType;
+        description: string;
+        userId: number;
+        date: Date;
+        amount: number;
         walletId: number;
         categoryId: number;
-        userId: number;
+        transferToWalletId: number | null;
     }>;
     remove(req: any, id: number): Promise<{
         message: string;
