@@ -1,10 +1,12 @@
 import { IsString, IsEnum, IsOptional, IsNumber, IsPositive, IsInt } from 'class-validator';
+import { CategoryType } from '@prisma/client';
 
 export class CreateCategoryDto {
   @IsString()
   name: string;
 
-  type: string;
+  @IsEnum(CategoryType)
+  type: CategoryType;
 
   @IsOptional()
   @IsString()

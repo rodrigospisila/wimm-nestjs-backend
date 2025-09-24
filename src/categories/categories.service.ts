@@ -2,6 +2,7 @@ import { Injectable, NotFoundException, BadRequestException } from '@nestjs/comm
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
+import { CategoryType } from '@prisma/client';
 
 @Injectable()
 export class CategoriesService {
@@ -36,7 +37,7 @@ export class CategoriesService {
       },
       include: {
         parentCategory: true,
-        subcategories: true,
+        subCategories: true,
         _count: {
           select: {
             transactions: true,
@@ -56,7 +57,7 @@ export class CategoriesService {
       where,
       include: {
         parentCategory: true,
-        subcategories: {
+        subCategories: {
           include: {
             _count: {
               select: {
@@ -99,7 +100,7 @@ export class CategoriesService {
       where: { id, userId },
       include: {
         parentCategory: true,
-        subcategories: true,
+        subCategories: true,
         transactions: {
           take: 10,
           orderBy: { date: 'desc' },
@@ -159,7 +160,7 @@ export class CategoriesService {
       data: updateCategoryDto,
       include: {
         parentCategory: true,
-        subcategories: true,
+        subCategories: true,
         _count: {
           select: {
             transactions: true,
@@ -173,7 +174,7 @@ export class CategoriesService {
     const category = await this.prisma.category.findFirst({
       where: { id, userId },
       include: {
-        subcategories: true,
+        subCategories: true,
         _count: {
           select: {
             transactions: true,
@@ -187,7 +188,7 @@ export class CategoriesService {
     }
 
     // Verificar se tem subcategorias
-    if (category.subcategories.length > 0) {
+    if (category.subCategories.length > 0) {
       throw new BadRequestException('Não é possível excluir uma categoria que possui subcategorias');
     }
 
@@ -279,23 +280,23 @@ export class CategoriesService {
 
     const defaultCategories = [
       // Categorias de Receita
-      { name: 'Salário', type: string.INCOME, color: '#4CAF50', icon: 'work' },
-      { name: 'Freelance', type: string.INCOME, color: '#8BC34A', icon: 'computer' },
-      { name: 'Investimentos', type: string.INCOME, color: '#CDDC39', icon: 'trending-up' },
-      { name: 'Vendas', type: string.INCOME, color: '#9CCC65', icon: 'store' },
-      { name: 'Outros', type: string.INCOME, color: '#FFC107', icon: 'attach-money' },
+      { name: 'Salário', type: CategoryType.INCOME, color: '#4CAF50', icon: 'work' },
+      { name: 'Freelance', type: CategoryType.INCOME, color: '#8BC34A', icon: 'computer' },
+      { name: 'Investimentos', type: CategoryType.INCOME, color: '#CDDC39', icon: 'trending-up' },
+      { name: 'Vendas', type: CategoryType.INCOME, color: '#9CCC65', icon: 'store' },
+      { name: 'Outros', type: CategoryType.INCOME, color: '#FFC107', icon: 'attach-money' },
 
       // Categorias de Despesa
-      { name: 'Alimentação', type: string.EXPENSE, color: '#FF9800', icon: 'restaurant' },
-      { name: 'Transporte', type: string.EXPENSE, color: '#FF5722', icon: 'directions-car' },
-      { name: 'Moradia', type: string.EXPENSE, color: '#795548', icon: 'home' },
-      { name: 'Saúde', type: string.EXPENSE, color: '#F44336', icon: 'local-hospital' },
-      { name: 'Educação', type: string.EXPENSE, color: '#9C27B0', icon: 'school' },
-      { name: 'Lazer', type: string.EXPENSE, color: '#E91E63', icon: 'movie' },
-      { name: 'Compras', type: string.EXPENSE, color: '#3F51B5', icon: 'shopping-cart' },
-      { name: 'Serviços', type: string.EXPENSE, color: '#00BCD4', icon: 'build' },
-      { name: 'Impostos', type: string.EXPENSE, color: '#FF7043', icon: 'account-balance' },
-      { name: 'Outros', type: string.EXPENSE, color: '#607D8B', icon: 'more-horiz' },
+      { name: 'Alimentação', type: CategoryType.EXPENSE, color: '#FF9800', icon: 'restaurant' },
+      { name: 'Transporte', type: CategoryType.EXPENSE, color: '#FF5722', icon: 'directions-car' },
+      { name: 'Moradia', type: CategoryType.EXPENSE, color: '#795548', icon: 'home' },
+      { name: 'Saúde', type: CategoryType.EXPENSE, color: '#F44336', icon: 'local-hospital' },
+      { name: 'Educação', type: CategoryType.EXPENSE, color: '#9C27B0', icon: 'school' },
+      { name: 'Lazer', type: CategoryType.EXPENSE, color: '#E91E63', icon: 'movie' },
+      { name: 'Compras', type: CategoryType.EXPENSE, color: '#3F51B5', icon: 'shopping-cart' },
+      { name: 'Serviços', type: CategoryType.EXPENSE, color: '#00BCD4', icon: 'build' },
+      { name: 'Impostos', type: CategoryType.EXPENSE, color: '#FF7043', icon: 'account-balance' },
+      { name: 'Outros', type: CategoryType.EXPENSE, color: '#607D8B', icon: 'more-horiz' },
     ];
 
     const createdCategories: any[] = [];
@@ -310,7 +311,7 @@ export class CategoriesService {
           },
           include: {
             parentCategory: true,
-            subcategories: true,
+            subCategories: true,
             _count: {
               select: {
                 transactions: true,
@@ -327,8 +328,8 @@ export class CategoriesService {
       categories: createdCategories,
       summary: {
         total: createdCategories.length,
-        income: createdCategories.filter(cat => cat.type === string.INCOME).length,
-        expense: createdCategories.filter(cat => cat.type === string.EXPENSE).length,
+        income: createdCategories.filter(cat => cat.type === CategoryType.INCOME).length,
+        expense: createdCategories.filter(cat => cat.type === CategoryType.EXPENSE).length,
       },
     };
   }
@@ -396,7 +397,7 @@ export class CategoriesService {
               },
               include: {
                 parentCategory: true,
-                subcategories: true,
+                subCategories: true,
                 _count: {
                   select: {
                     transactions: true,
@@ -443,10 +444,10 @@ export class CategoriesService {
   }
 
   private getDefaultColor(type: string): string {
-    return type === string.INCOME ? '#4CAF50' : '#FF5722';
+    return type === CategoryType.INCOME ? '#4CAF50' : '#FF5722';
   }
 
   private getDefaultIcon(type: string): string {
-    return type === string.INCOME ? 'trending-up' : 'trending-down';
+    return type === CategoryType.INCOME ? 'trending-up' : 'trending-down';
   }
 }
