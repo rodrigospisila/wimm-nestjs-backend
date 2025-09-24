@@ -47,6 +47,430 @@ export class CategoriesService {
     });
   }
 
+  async findAllByUser(userId: number, type?: string) {
+    const where: any = { userId };
+    
+    if (type) {
+      where.type = type as CategoryType;
+    }
+
+    return this.prisma.category.findMany({
+      where,
+      include: {
+        parentCategory: {
+          select: {
+            id: true,
+            name: true,
+            color: true,
+            icon: true,
+          },
+        },
+        subCategories: {
+          select: {
+            id: true,
+            name: true,
+            color: true,
+            icon: true,
+            type: true,
+          },
+        },
+        _count: {
+          select: {
+            transactions: true,
+          },
+        },
+      },
+      orderBy: [
+        { parentCategoryId: 'asc' },
+        { name: 'asc' },
+      ],
+    });
+  }
+
+  async getHierarchy(userId: number, type?: string) {
+    const where: any = { userId, parentCategoryId: null };
+    
+    if (type) {
+      where.type = type as CategoryType;
+    }
+
+    return this.prisma.category.findMany({
+      where,
+      include: {
+        subCategories: {
+          where: { },
+          orderBy: { name: 'asc' },
+        },
+        _count: {
+          select: {
+            transactions: true,
+          },
+        },
+      },
+      orderBy: { name: 'asc' },
+    });
+  }
+
+  async findOne(userId: number, id: number) {
+    const category = await this.prisma.category.findFirst({
+      where: { id, userId, },
+      include: {
+        parentCategory: {
+          select: {
+            id: true,
+            name: true,
+            color: true,
+            icon: true,
+          },
+        },
+        subCategories: {
+          where: { },
+          select: {
+            id: true,
+            name: true,
+            color: true,
+            icon: true,
+            type: true,
+          },
+        },
+        _count: {
+          select: {
+            transactions: true,
+          },
+        },
+      },
+    });
+
+    if (!category) {
+      throw new NotFoundException('Categoria não encontrada');
+    }
+
+    return category;
+  }
+
+  async update(userId: number, id: number, updateCategoryDto: UpdateCategoryDto) {
+    // Verificar se a categoria existe e pertence ao usuário
+    const existingCategory = await this.findOne(userId, id);
+
+    // Verificar se a nova categoria pai existe (se fornecida)
+    if (updateCategoryDto.parentCategoryId && updateCategoryDto.parentCategoryId !== existingCategory.parentCategoryId) {
+      const parentCategory = await this.prisma.category.findFirst({
+        where: {
+          id: updateCategoryDto.parentCategoryId,
+          userId,
+          },
+      });
+
+      if (!parentCategory) {
+        throw new NotFoundException('Categoria pai não encontrada');
+      }
+
+      // Verificar se não está tentando criar uma referência circular
+      if (updateCategoryDto.parentCategoryId === id) {
+        throw new BadRequestException('Uma categoria não pode ser pai de si mesma');
+      }
+
+      // Verificar se o tipo é compatível
+      const categoryType = updateCategoryDto.type || existingCategory.type;
+      if (parentCategory.type !== categoryType) {
+        throw new BadRequestException('Categoria filha deve ter o mesmo tipo da categoria pai');
+      }
+    }
+
+    return this.prisma.category.update({
+      where: { id },
+      data: updateCategoryDto,
+      include: {
+        parentCategory: {
+          select: {
+            id: true,
+            name: true,
+            color: true,
+            icon: true,
+          },
+        },
+        subCategories: {
+          where: { },
+          select: {
+            id: true,
+            name: true,
+            color: true,
+            icon: true,
+            type: true,
+          },
+        },
+        _count: {
+          select: {
+            transactions: true,
+          },
+        },
+      },
+    });
+  }
+
+  async remove(userId: number, id: number) {
+    // Verificar se a categoria existe e pertence ao usuário
+    await this.findOne(userId, id);
+
+    // Verificar se há transações associadas
+    const transactionsCount = await this.prisma.transaction.count({
+      where: { categoryId: id },
+    });
+
+    if (transactionsCount > 0) {
+      throw new BadRequestException(
+        'Não é possível excluir uma categoria que possui transações associadas.',
+      );
+    }
+
+    // Verificar se há subcategorias
+    const subcategoriesCount = await this.prisma.category.count({
+      where: { parentCategoryId: id, },
+    });
+
+    if (subcategoriesCount > 0) {
+      throw new BadRequestException(
+        'Não é possível excluir uma categoria que possui subcategorias. Remova as subcategorias primeiro.',
+      );
+    }
+
+    // Soft delete
+    return this.prisma.category.update({
+      where: { id },
+      data: {},
+    });
+  }
+
+  async getSubcategories(userId: number, parentId: number) {
+    // Verificar se a categoria pai existe
+    await this.findOne(userId, parentId);
+
+    return this.prisma.category.findMany({
+      where: {
+        parentCategoryId: parentId,
+        userId,
+        },
+      include: {
+        _count: {
+          select: {
+            transactions: true,
+          },
+        },
+      },
+      orderBy: { name: 'asc' },
+    });
+  }
+
+  async getCategoryStatistics(userId: number, categoryId: number, startDate?: Date, endDate?: Date) {
+    // Verificar se a categoria existe
+    await this.findOne(userId, categoryId);
+
+    const where: any = {
+      categoryId,
+      userId,
+    };
+
+    if (startDate && endDate) {
+      where.date = {
+        gte: startDate,
+        lte: endDate,
+      };
+    }
+
+    const [transactions, totalAmount, transactionCount] = await Promise.all([
+      this.prisma.transaction.findMany({
+        where,
+        include: {
+          paymentMethod: {
+            select: {
+              name: true,
+              type: true,
+            },
+          },
+        },
+        orderBy: { date: 'desc' },
+        take: 10, // Últimas 10 transações
+      }),
+      this.prisma.transaction.aggregate({
+        where,
+        _sum: { amount: true },
+      }),
+      this.prisma.transaction.count({ where }),
+    ]);
+
+    return {
+      categoryId,
+      totalAmount: totalAmount._sum.amount || 0,
+      transactionCount,
+      recentTransactions: transactions,
+    };
+  }
+
+  async getTypes() {
+    const types = Object.values(CategoryType).map(type => ({
+      value: type,
+      label: this.getTypeLabel(type),
+      description: this.getTypeDescription(type),
+    }));
+
+    return { types };
+  }
+
+  async createDefaults(userId: number) {
+    const defaultCategories = [
+      // Categorias de Despesas
+      {
+        name: 'Alimentação',
+        type: CategoryType.EXPENSE,
+        color: '#FF6B6B',
+        icon: 'restaurant',
+        subcategories: [
+          { name: 'Supermercado', color: '#FF8E8E', icon: 'storefront' },
+          { name: 'Restaurante', color: '#FFB3B3', icon: 'restaurant' },
+          { name: 'Delivery', color: '#FFC9C9', icon: 'bicycle' },
+          { name: 'Lanchonete', color: '#FFD9D9', icon: 'cafe' },
+        ],
+      },
+      {
+        name: 'Transporte',
+        type: CategoryType.EXPENSE,
+        color: '#4ECDC4',
+        icon: 'car',
+        subcategories: [
+          { name: 'Combustível', color: '#6ED4CC', icon: 'car-sport' },
+          { name: 'Uber/99', color: '#8EDCD6', icon: 'car' },
+          { name: 'Transporte Público', color: '#AEE4E0', icon: 'bus' },
+          { name: 'Estacionamento', color: '#CEEBE9', icon: 'location' },
+        ],
+      },
+      {
+        name: 'Moradia',
+        type: CategoryType.EXPENSE,
+        color: '#45B7D1',
+        icon: 'home',
+        subcategories: [
+          { name: 'Aluguel', color: '#67C5D7', icon: 'home' },
+          { name: 'Condomínio', color: '#89D3DD', icon: 'business' },
+          { name: 'Energia Elétrica', color: '#ABE1E3', icon: 'flash' },
+          { name: 'Água', color: '#CDEFE9', icon: 'water' },
+          { name: 'Internet', color: '#E8F6F3', icon: 'wifi' },
+        ],
+      },
+      {
+        name: 'Saúde',
+        type: CategoryType.EXPENSE,
+        color: '#96CEB4',
+        icon: 'medical',
+        subcategories: [
+          { name: 'Plano de Saúde', color: '#A8D5C1', icon: 'shield-checkmark' },
+          { name: 'Médico', color: '#BADCCE', icon: 'person' },
+          { name: 'Farmácia', color: '#CCE3DB', icon: 'medical' },
+          { name: 'Exames', color: '#DEEAE8', icon: 'document-text' },
+        ],
+      },
+      {
+        name: 'Lazer',
+        type: CategoryType.EXPENSE,
+        color: '#FFEAA7',
+        icon: 'game-controller',
+        subcategories: [
+          { name: 'Cinema', color: '#FFECB3', icon: 'film' },
+          { name: 'Shows', color: '#FFEEBF', icon: 'musical-notes' },
+          { name: 'Viagens', color: '#FFF0CB', icon: 'airplane' },
+          { name: 'Streaming', color: '#FFF2D7', icon: 'tv' },
+        ],
+      },
+      // Categorias de Receitas
+      {
+        name: 'Salário',
+        type: CategoryType.INCOME,
+        color: '#00B894',
+        icon: 'card',
+        subcategories: [
+          { name: 'Salário Principal', color: '#26C281', icon: 'card' },
+          { name: 'Hora Extra', color: '#4CCC6E', icon: 'time' },
+          { name: '13º Salário', color: '#72D65B', icon: 'gift' },
+          { name: 'Férias', color: '#98E048', icon: 'sunny' },
+        ],
+      },
+      {
+        name: 'Freelance',
+        type: CategoryType.INCOME,
+        color: '#6C5CE7',
+        icon: 'laptop',
+        subcategories: [
+          { name: 'Projetos', color: '#8B7BED', icon: 'code-slash' },
+          { name: 'Consultoria', color: '#A99AF3', icon: 'people' },
+          { name: 'Vendas', color: '#C7B9F9', icon: 'storefront' },
+        ],
+      },
+      {
+        name: 'Investimentos',
+        type: CategoryType.INCOME,
+        color: '#FD79A8',
+        icon: 'trending-up',
+        subcategories: [
+          { name: 'Dividendos', color: '#FE8FB5', icon: 'stats-chart' },
+          { name: 'Juros', color: '#FFA5C2', icon: 'calculator' },
+          { name: 'Rendimento', color: '#FFBBCF', icon: 'trending-up' },
+        ],
+      },
+    ];
+
+    const createdCategories: any[] = [];
+
+    for (const categoryData of defaultCategories) {
+      try {
+        // Verificar se já existe
+        const existing = await this.prisma.category.findFirst({
+          where: {
+            userId,
+            name: categoryData.name,
+            },
+        });
+
+        if (!existing) {
+          // Criar categoria principal
+          const { subcategories, ...mainCategoryData } = categoryData;
+          const mainCategory = await this.prisma.category.create({
+            data: {
+              ...mainCategoryData,
+              userId,
+            },
+          });
+
+          createdCategories.push(mainCategory);
+
+          // Criar subcategorias
+          if (subcategories) {
+            for (const subCategoryData of subcategories) {
+              try {
+                const subCategory = await this.prisma.category.create({
+                  data: {
+                    ...subCategoryData,
+                    type: categoryData.type,
+                    parentCategoryId: mainCategory.id,
+                    userId,
+                  },
+                });
+                createdCategories.push(subCategory);
+              } catch (error) {
+                console.error(`Erro ao criar subcategoria ${subCategoryData.name}:`, error);
+              }
+            }
+          }
+        }
+      } catch (error) {
+        console.error(`Erro ao criar categoria ${categoryData.name}:`, error);
+      }
+    }
+
+    return {
+      message: `${createdCategories.length} categorias padrão criadas`,
+      categories: createdCategories,
+    };
+  }
+
   async findAll(userId: number, type?: string) {
     const where: any = { userId };
     if (type) {
@@ -95,112 +519,8 @@ export class CategoriesService {
     return hierarchical;
   }
 
-  async findOne(userId: number, id: number) {
-    const category = await this.prisma.category.findFirst({
-      where: { id, userId },
-      include: {
-        parentCategory: true,
-        subCategories: true,
-        transactions: {
-          take: 10,
-          orderBy: { date: 'desc' },
-          include: {
-            paymentMethod: {
-              include: {
-                walletGroup: true,
-              },
-            },
-          },
-        },
-        _count: {
-          select: {
-            transactions: true,
-          },
-        },
-      },
-    });
 
-    if (!category) {
-      throw new NotFoundException('Categoria não encontrada');
-    }
 
-    return category;
-  }
-
-  async update(userId: number, id: number, updateCategoryDto: UpdateCategoryDto) {
-    const category = await this.findOne(userId, id);
-
-    // Verificar se está tentando definir uma categoria pai
-    if (updateCategoryDto.parentCategoryId) {
-      // Não pode ser pai de si mesmo
-      if (updateCategoryDto.parentCategoryId === id) {
-        throw new BadRequestException('Uma categoria não pode ser pai de si mesma');
-      }
-
-      // Verificar se a categoria pai existe
-      const parentCategory = await this.prisma.category.findFirst({
-        where: {
-          id: updateCategoryDto.parentCategoryId,
-          userId,
-        },
-      });
-
-      if (!parentCategory) {
-        throw new NotFoundException('Categoria pai não encontrada');
-      }
-
-      // Verificar se não criaria um loop
-      if (await this.wouldCreateLoop(userId, id, updateCategoryDto.parentCategoryId)) {
-        throw new BadRequestException('Esta operação criaria um loop na hierarquia');
-      }
-    }
-
-    return this.prisma.category.update({
-      where: { id },
-      data: updateCategoryDto,
-      include: {
-        parentCategory: true,
-        subCategories: true,
-        _count: {
-          select: {
-            transactions: true,
-          },
-        },
-      },
-    });
-  }
-
-  async remove(userId: number, id: number) {
-    const category = await this.prisma.category.findFirst({
-      where: { id, userId },
-      include: {
-        subCategories: true,
-        _count: {
-          select: {
-            transactions: true,
-          },
-        },
-      },
-    });
-
-    if (!category) {
-      throw new NotFoundException('Categoria não encontrada');
-    }
-
-    // Verificar se tem subcategorias
-    if (category.subCategories.length > 0) {
-      throw new BadRequestException('Não é possível excluir uma categoria que possui subcategorias');
-    }
-
-    // Verificar se tem transações
-    if (category._count.transactions > 0) {
-      throw new BadRequestException('Não é possível excluir uma categoria que possui transações');
-    }
-
-    return this.prisma.category.delete({
-      where: { id },
-    });
-  }
 
   async getStatistics(userId: number, categoryId?: number) {
     const where: any = { userId };
@@ -443,11 +763,30 @@ export class CategoriesService {
     return false;
   }
 
-  private getDefaultColor(type: string): string {
-    return type === CategoryType.INCOME ? '#4CAF50' : '#FF5722';
+
+
+  private getTypeLabel(type: CategoryType): string {
+    const labels = {
+      [CategoryType.INCOME]: 'Receita',
+      [CategoryType.EXPENSE]: 'Despesa',
+    };
+    return labels[type] || type;
   }
 
-  private getDefaultIcon(type: string): string {
+  private getTypeDescription(type: CategoryType): string {
+    const descriptions = {
+      [CategoryType.INCOME]: 'Categorias para receitas e ganhos',
+      [CategoryType.EXPENSE]: 'Categorias para gastos e despesas',
+    };
+    return descriptions[type] || '';
+  }
+
+  private getDefaultColor(type: CategoryType): string {
+    return type === CategoryType.INCOME ? '#00B894' : '#FF6B6B';
+  }
+
+  private getDefaultIcon(type: CategoryType): string {
     return type === CategoryType.INCOME ? 'trending-up' : 'trending-down';
   }
+
 }
