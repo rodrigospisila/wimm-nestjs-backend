@@ -12,18 +12,18 @@ export declare class WalletGroupsService {
             type: import("@prisma/client").$Enums.PaymentMethodType;
             color: string;
             icon: string;
-            creditLimit: number | null;
-            closingDay: number | null;
-            dueDay: number | null;
-            currentBalance: number;
             isActive: boolean;
             userId: number;
             isPrimary: boolean;
             walletGroupId: number | null;
-            availableLimit: number | null;
+            currentBalance: number;
+            creditLimit: number | null;
+            closingDay: number | null;
+            dueDay: number | null;
             accountNumber: string | null;
             agency: string | null;
             bankCode: string | null;
+            availableLimit: number | null;
         }[];
     } & {
         name: string;
@@ -34,10 +34,10 @@ export declare class WalletGroupsService {
         description: string | null;
         color: string;
         icon: string;
-        isActive: boolean;
-        userId: number;
         hasIntegratedPix: boolean;
         hasWalletBalance: boolean;
+        isActive: boolean;
+        userId: number;
     }>;
     findAll(userId: number): Promise<({
         paymentMethods: {
@@ -48,18 +48,18 @@ export declare class WalletGroupsService {
             type: import("@prisma/client").$Enums.PaymentMethodType;
             color: string;
             icon: string;
-            creditLimit: number | null;
-            closingDay: number | null;
-            dueDay: number | null;
-            currentBalance: number;
             isActive: boolean;
             userId: number;
             isPrimary: boolean;
             walletGroupId: number | null;
-            availableLimit: number | null;
+            currentBalance: number;
+            creditLimit: number | null;
+            closingDay: number | null;
+            dueDay: number | null;
             accountNumber: string | null;
             agency: string | null;
             bankCode: string | null;
+            availableLimit: number | null;
         }[];
     } & {
         name: string;
@@ -70,10 +70,10 @@ export declare class WalletGroupsService {
         description: string | null;
         color: string;
         icon: string;
-        isActive: boolean;
-        userId: number;
         hasIntegratedPix: boolean;
         hasWalletBalance: boolean;
+        isActive: boolean;
+        userId: number;
     })[]>;
     findOne(id: number, userId: number): Promise<{
         paymentMethods: {
@@ -84,18 +84,18 @@ export declare class WalletGroupsService {
             type: import("@prisma/client").$Enums.PaymentMethodType;
             color: string;
             icon: string;
-            creditLimit: number | null;
-            closingDay: number | null;
-            dueDay: number | null;
-            currentBalance: number;
             isActive: boolean;
             userId: number;
             isPrimary: boolean;
             walletGroupId: number | null;
-            availableLimit: number | null;
+            currentBalance: number;
+            creditLimit: number | null;
+            closingDay: number | null;
+            dueDay: number | null;
             accountNumber: string | null;
             agency: string | null;
             bankCode: string | null;
+            availableLimit: number | null;
         }[];
     } & {
         name: string;
@@ -106,10 +106,10 @@ export declare class WalletGroupsService {
         description: string | null;
         color: string;
         icon: string;
-        isActive: boolean;
-        userId: number;
         hasIntegratedPix: boolean;
         hasWalletBalance: boolean;
+        isActive: boolean;
+        userId: number;
     }>;
     update(id: number, userId: number, updateData: Partial<CreateWalletGroupDto>): Promise<{
         paymentMethods: {
@@ -120,18 +120,18 @@ export declare class WalletGroupsService {
             type: import("@prisma/client").$Enums.PaymentMethodType;
             color: string;
             icon: string;
-            creditLimit: number | null;
-            closingDay: number | null;
-            dueDay: number | null;
-            currentBalance: number;
             isActive: boolean;
             userId: number;
             isPrimary: boolean;
             walletGroupId: number | null;
-            availableLimit: number | null;
+            currentBalance: number;
+            creditLimit: number | null;
+            closingDay: number | null;
+            dueDay: number | null;
             accountNumber: string | null;
             agency: string | null;
             bankCode: string | null;
+            availableLimit: number | null;
         }[];
     } & {
         name: string;
@@ -142,10 +142,10 @@ export declare class WalletGroupsService {
         description: string | null;
         color: string;
         icon: string;
-        isActive: boolean;
-        userId: number;
         hasIntegratedPix: boolean;
         hasWalletBalance: boolean;
+        isActive: boolean;
+        userId: number;
     }>;
     remove(id: number, userId: number): Promise<{
         name: string;
@@ -156,10 +156,10 @@ export declare class WalletGroupsService {
         description: string | null;
         color: string;
         icon: string;
-        isActive: boolean;
-        userId: number;
         hasIntegratedPix: boolean;
         hasWalletBalance: boolean;
+        isActive: boolean;
+        userId: number;
     }>;
-    createDefaultWalletGroups(userId: number): Promise<never[]>;
+    createDefaultWalletGroups(userId: number): Promise<any[]>;
 }

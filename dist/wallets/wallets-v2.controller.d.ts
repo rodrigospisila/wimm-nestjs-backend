@@ -15,18 +15,18 @@ export declare class WalletsV2Controller {
             type: import("@prisma/client").$Enums.PaymentMethodType;
             color: string;
             icon: string;
-            creditLimit: number | null;
-            closingDay: number | null;
-            dueDay: number | null;
-            currentBalance: number;
             isActive: boolean;
             userId: number;
             isPrimary: boolean;
             walletGroupId: number | null;
-            availableLimit: number | null;
+            currentBalance: number;
+            creditLimit: number | null;
+            closingDay: number | null;
+            dueDay: number | null;
             accountNumber: string | null;
             agency: string | null;
             bankCode: string | null;
+            availableLimit: number | null;
         }[];
     } & {
         name: string;
@@ -37,10 +37,10 @@ export declare class WalletsV2Controller {
         description: string | null;
         color: string;
         icon: string;
-        isActive: boolean;
-        userId: number;
         hasIntegratedPix: boolean;
         hasWalletBalance: boolean;
+        isActive: boolean;
+        userId: number;
     }>;
     findAllGroups(req: any): Promise<({
         paymentMethods: {
@@ -51,18 +51,18 @@ export declare class WalletsV2Controller {
             type: import("@prisma/client").$Enums.PaymentMethodType;
             color: string;
             icon: string;
-            creditLimit: number | null;
-            closingDay: number | null;
-            dueDay: number | null;
-            currentBalance: number;
             isActive: boolean;
             userId: number;
             isPrimary: boolean;
             walletGroupId: number | null;
-            availableLimit: number | null;
+            currentBalance: number;
+            creditLimit: number | null;
+            closingDay: number | null;
+            dueDay: number | null;
             accountNumber: string | null;
             agency: string | null;
             bankCode: string | null;
+            availableLimit: number | null;
         }[];
     } & {
         name: string;
@@ -73,10 +73,10 @@ export declare class WalletsV2Controller {
         description: string | null;
         color: string;
         icon: string;
-        isActive: boolean;
-        userId: number;
         hasIntegratedPix: boolean;
         hasWalletBalance: boolean;
+        isActive: boolean;
+        userId: number;
     })[]>;
     getWalletGroupTypes(): Promise<{
         types: ({
@@ -101,7 +101,7 @@ export declare class WalletsV2Controller {
             description: string;
         })[];
     }>;
-    createDefaultGroups(req: any): Promise<never[]>;
+    createDefaultGroups(req: any): Promise<any[]>;
     findOneGroup(id: string, req: any): Promise<{
         paymentMethods: {
             name: string;
@@ -111,18 +111,18 @@ export declare class WalletsV2Controller {
             type: import("@prisma/client").$Enums.PaymentMethodType;
             color: string;
             icon: string;
-            creditLimit: number | null;
-            closingDay: number | null;
-            dueDay: number | null;
-            currentBalance: number;
             isActive: boolean;
             userId: number;
             isPrimary: boolean;
             walletGroupId: number | null;
-            availableLimit: number | null;
+            currentBalance: number;
+            creditLimit: number | null;
+            closingDay: number | null;
+            dueDay: number | null;
             accountNumber: string | null;
             agency: string | null;
             bankCode: string | null;
+            availableLimit: number | null;
         }[];
     } & {
         name: string;
@@ -133,10 +133,10 @@ export declare class WalletsV2Controller {
         description: string | null;
         color: string;
         icon: string;
-        isActive: boolean;
-        userId: number;
         hasIntegratedPix: boolean;
         hasWalletBalance: boolean;
+        isActive: boolean;
+        userId: number;
     }>;
     updateGroup(id: string, updateData: Partial<CreateWalletGroupDto>, req: any): Promise<{
         paymentMethods: {
@@ -147,18 +147,18 @@ export declare class WalletsV2Controller {
             type: import("@prisma/client").$Enums.PaymentMethodType;
             color: string;
             icon: string;
-            creditLimit: number | null;
-            closingDay: number | null;
-            dueDay: number | null;
-            currentBalance: number;
             isActive: boolean;
             userId: number;
             isPrimary: boolean;
             walletGroupId: number | null;
-            availableLimit: number | null;
+            currentBalance: number;
+            creditLimit: number | null;
+            closingDay: number | null;
+            dueDay: number | null;
             accountNumber: string | null;
             agency: string | null;
             bankCode: string | null;
+            availableLimit: number | null;
         }[];
     } & {
         name: string;
@@ -169,10 +169,10 @@ export declare class WalletsV2Controller {
         description: string | null;
         color: string;
         icon: string;
-        isActive: boolean;
-        userId: number;
         hasIntegratedPix: boolean;
         hasWalletBalance: boolean;
+        isActive: boolean;
+        userId: number;
     }>;
     removeGroup(id: string, req: any): Promise<{
         message: string;
@@ -187,10 +187,10 @@ export declare class WalletsV2Controller {
             description: string | null;
             color: string;
             icon: string;
-            isActive: boolean;
-            userId: number;
             hasIntegratedPix: boolean;
             hasWalletBalance: boolean;
+            isActive: boolean;
+            userId: number;
         } | null;
     } & {
         name: string;
@@ -200,18 +200,18 @@ export declare class WalletsV2Controller {
         type: import("@prisma/client").$Enums.PaymentMethodType;
         color: string;
         icon: string;
-        creditLimit: number | null;
-        closingDay: number | null;
-        dueDay: number | null;
-        currentBalance: number;
         isActive: boolean;
         userId: number;
         isPrimary: boolean;
         walletGroupId: number | null;
-        availableLimit: number | null;
+        currentBalance: number;
+        creditLimit: number | null;
+        closingDay: number | null;
+        dueDay: number | null;
         accountNumber: string | null;
         agency: string | null;
         bankCode: string | null;
+        availableLimit: number | null;
     }>;
     findAllPaymentMethods(req: any, walletGroupId?: string): Promise<({
         walletGroup: {
@@ -223,10 +223,10 @@ export declare class WalletsV2Controller {
             description: string | null;
             color: string;
             icon: string;
-            isActive: boolean;
-            userId: number;
             hasIntegratedPix: boolean;
             hasWalletBalance: boolean;
+            isActive: boolean;
+            userId: number;
         } | null;
     } & {
         name: string;
@@ -236,18 +236,18 @@ export declare class WalletsV2Controller {
         type: import("@prisma/client").$Enums.PaymentMethodType;
         color: string;
         icon: string;
-        creditLimit: number | null;
-        closingDay: number | null;
-        dueDay: number | null;
-        currentBalance: number;
         isActive: boolean;
         userId: number;
         isPrimary: boolean;
         walletGroupId: number | null;
-        availableLimit: number | null;
+        currentBalance: number;
+        creditLimit: number | null;
+        closingDay: number | null;
+        dueDay: number | null;
         accountNumber: string | null;
         agency: string | null;
         bankCode: string | null;
+        availableLimit: number | null;
     })[]>;
     getPaymentMethodTypes(): Promise<{
         types: ({
@@ -316,10 +316,10 @@ export declare class WalletsV2Controller {
             description: string | null;
             color: string;
             icon: string;
-            isActive: boolean;
-            userId: number;
             hasIntegratedPix: boolean;
             hasWalletBalance: boolean;
+            isActive: boolean;
+            userId: number;
         } | null;
     } & {
         name: string;
@@ -329,18 +329,18 @@ export declare class WalletsV2Controller {
         type: import("@prisma/client").$Enums.PaymentMethodType;
         color: string;
         icon: string;
-        creditLimit: number | null;
-        closingDay: number | null;
-        dueDay: number | null;
-        currentBalance: number;
         isActive: boolean;
         userId: number;
         isPrimary: boolean;
         walletGroupId: number | null;
-        availableLimit: number | null;
+        currentBalance: number;
+        creditLimit: number | null;
+        closingDay: number | null;
+        dueDay: number | null;
         accountNumber: string | null;
         agency: string | null;
         bankCode: string | null;
+        availableLimit: number | null;
     })[]>;
     findOnePaymentMethod(id: string, req: any): Promise<{
         walletGroup: {
@@ -352,10 +352,10 @@ export declare class WalletsV2Controller {
             description: string | null;
             color: string;
             icon: string;
-            isActive: boolean;
-            userId: number;
             hasIntegratedPix: boolean;
             hasWalletBalance: boolean;
+            isActive: boolean;
+            userId: number;
         } | null;
         transactions: ({
             category: {
@@ -377,9 +377,10 @@ export declare class WalletsV2Controller {
             updatedAt: Date;
             type: import("@prisma/client").$Enums.TransactionType;
             description: string;
+            userId: number;
+            paymentMethodId: number;
             amount: number;
             date: Date;
-            paymentMethodId: number;
             categoryId: number;
             subcategoryId: number | null;
             creditCardBillId: number | null;
@@ -389,7 +390,6 @@ export declare class WalletsV2Controller {
             notes: string | null;
             tags: string | null;
             isRecurring: boolean;
-            userId: number;
         })[];
     } & {
         name: string;
@@ -399,18 +399,18 @@ export declare class WalletsV2Controller {
         type: import("@prisma/client").$Enums.PaymentMethodType;
         color: string;
         icon: string;
-        creditLimit: number | null;
-        closingDay: number | null;
-        dueDay: number | null;
-        currentBalance: number;
         isActive: boolean;
         userId: number;
         isPrimary: boolean;
         walletGroupId: number | null;
-        availableLimit: number | null;
+        currentBalance: number;
+        creditLimit: number | null;
+        closingDay: number | null;
+        dueDay: number | null;
         accountNumber: string | null;
         agency: string | null;
         bankCode: string | null;
+        availableLimit: number | null;
     }>;
     updatePaymentMethod(id: string, updateData: Partial<CreatePaymentMethodDto>, req: any): Promise<{
         walletGroup: {
@@ -422,10 +422,10 @@ export declare class WalletsV2Controller {
             description: string | null;
             color: string;
             icon: string;
-            isActive: boolean;
-            userId: number;
             hasIntegratedPix: boolean;
             hasWalletBalance: boolean;
+            isActive: boolean;
+            userId: number;
         } | null;
     } & {
         name: string;
@@ -435,18 +435,18 @@ export declare class WalletsV2Controller {
         type: import("@prisma/client").$Enums.PaymentMethodType;
         color: string;
         icon: string;
-        creditLimit: number | null;
-        closingDay: number | null;
-        dueDay: number | null;
-        currentBalance: number;
         isActive: boolean;
         userId: number;
         isPrimary: boolean;
         walletGroupId: number | null;
-        availableLimit: number | null;
+        currentBalance: number;
+        creditLimit: number | null;
+        closingDay: number | null;
+        dueDay: number | null;
         accountNumber: string | null;
         agency: string | null;
         bankCode: string | null;
+        availableLimit: number | null;
     }>;
     updateBalance(id: string, { amount, operation }: {
         amount: number;
@@ -459,18 +459,18 @@ export declare class WalletsV2Controller {
         type: import("@prisma/client").$Enums.PaymentMethodType;
         color: string;
         icon: string;
-        creditLimit: number | null;
-        closingDay: number | null;
-        dueDay: number | null;
-        currentBalance: number;
         isActive: boolean;
         userId: number;
         isPrimary: boolean;
         walletGroupId: number | null;
-        availableLimit: number | null;
+        currentBalance: number;
+        creditLimit: number | null;
+        closingDay: number | null;
+        dueDay: number | null;
         accountNumber: string | null;
         agency: string | null;
         bankCode: string | null;
+        availableLimit: number | null;
     }>;
     removePaymentMethod(id: string, req: any): Promise<{
         message: string;
@@ -485,18 +485,18 @@ export declare class WalletsV2Controller {
                 type: import("@prisma/client").$Enums.PaymentMethodType;
                 color: string;
                 icon: string;
-                creditLimit: number | null;
-                closingDay: number | null;
-                dueDay: number | null;
-                currentBalance: number;
                 isActive: boolean;
                 userId: number;
                 isPrimary: boolean;
                 walletGroupId: number | null;
-                availableLimit: number | null;
+                currentBalance: number;
+                creditLimit: number | null;
+                closingDay: number | null;
+                dueDay: number | null;
                 accountNumber: string | null;
                 agency: string | null;
                 bankCode: string | null;
+                availableLimit: number | null;
             }[];
         } & {
             name: string;
@@ -507,10 +507,10 @@ export declare class WalletsV2Controller {
             description: string | null;
             color: string;
             icon: string;
-            isActive: boolean;
-            userId: number;
             hasIntegratedPix: boolean;
             hasWalletBalance: boolean;
+            isActive: boolean;
+            userId: number;
         })[];
         independentMethods: ({
             walletGroup: {
@@ -522,10 +522,10 @@ export declare class WalletsV2Controller {
                 description: string | null;
                 color: string;
                 icon: string;
-                isActive: boolean;
-                userId: number;
                 hasIntegratedPix: boolean;
                 hasWalletBalance: boolean;
+                isActive: boolean;
+                userId: number;
             } | null;
         } & {
             name: string;
@@ -535,18 +535,18 @@ export declare class WalletsV2Controller {
             type: import("@prisma/client").$Enums.PaymentMethodType;
             color: string;
             icon: string;
-            creditLimit: number | null;
-            closingDay: number | null;
-            dueDay: number | null;
-            currentBalance: number;
             isActive: boolean;
             userId: number;
             isPrimary: boolean;
             walletGroupId: number | null;
-            availableLimit: number | null;
+            currentBalance: number;
+            creditLimit: number | null;
+            closingDay: number | null;
+            dueDay: number | null;
             accountNumber: string | null;
             agency: string | null;
             bankCode: string | null;
+            availableLimit: number | null;
         })[];
         summary: {
             totalBalance: number;

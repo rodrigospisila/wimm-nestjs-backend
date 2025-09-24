@@ -8,8 +8,6 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.WalletsModule = void 0;
 const common_1 = require("@nestjs/common");
-const wallets_service_1 = require("./wallets.service");
-const wallets_controller_1 = require("./wallets.controller");
 const wallets_v2_controller_1 = require("./wallets-v2.controller");
 const wallet_groups_service_1 = require("./wallet-groups.service");
 const payment_methods_service_1 = require("./payment-methods.service");
@@ -18,9 +16,9 @@ let WalletsModule = class WalletsModule {
 exports.WalletsModule = WalletsModule;
 exports.WalletsModule = WalletsModule = __decorate([
     (0, common_1.Module)({
-        controllers: [wallets_controller_1.WalletsController, wallets_v2_controller_1.WalletsV2Controller],
-        providers: [wallets_service_1.WalletsService, wallet_groups_service_1.WalletGroupsService, payment_methods_service_1.PaymentMethodsService],
-        exports: [wallets_service_1.WalletsService, wallet_groups_service_1.WalletGroupsService, payment_methods_service_1.PaymentMethodsService],
+        controllers: [wallets_v2_controller_1.WalletsV2Controller],
+        providers: [wallet_groups_service_1.WalletGroupsService, payment_methods_service_1.PaymentMethodsService],
+        exports: [wallet_groups_service_1.WalletGroupsService, payment_methods_service_1.PaymentMethodsService],
     })
 ], WalletsModule);
 //# sourceMappingURL=wallets.module.js.map

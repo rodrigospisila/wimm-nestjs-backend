@@ -118,10 +118,10 @@ export class WalletGroupsService {
       },
     ];
 
-    const createdGroups = [];
+    const createdGroups: any[] = [];
     for (const group of defaultGroups) {
       const created = await this.create(userId, group);
-      createdGroups.push(created);
+      createdGroups.push(created as any);
     }
 
     return createdGroups;

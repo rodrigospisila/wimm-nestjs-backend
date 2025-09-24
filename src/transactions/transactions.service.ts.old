@@ -23,7 +23,7 @@ export class TransactionsService {
     }
 
     // Verificar se a carteira pertence ao usuário
-    const wallet = await this.prisma.wallet.findFirst({
+    const wallet = await this.prisma.paymentMethod.findFirst({
       where: {
         id: walletId,
         userId: userId,
@@ -79,7 +79,7 @@ export class TransactionsService {
 
       // Atualizar o saldo da carteira
       const balanceChange = type === 'INCOME' ? amount : -amount;
-      await prisma.wallet.update({
+      await prisma.paymentMethod.update({
         where: { id: walletId },
         data: {
           currentBalance: {
@@ -112,7 +112,7 @@ export class TransactionsService {
     }
 
     if (filters?.walletId) {
-      where.walletId = filters.walletId;
+      where.paymentMethodId = filters.walletId;
     }
 
     if (filters?.startDate || filters?.endDate) {
@@ -137,12 +137,9 @@ export class TransactionsService {
             type: true,
           },
         },
-        wallet: {
-          select: {
-            id: true,
-            name: true,
-            color: true,
-            icon: true,
+        paymentMethod: {
+          include: {
+            walletGroup: true,
           },
         },
       },
@@ -172,12 +169,9 @@ export class TransactionsService {
             type: true,
           },
         },
-        wallet: {
-          select: {
-            id: true,
-            name: true,
-            color: true,
-            icon: true,
+        paymentMethod: {
+          include: {
+            walletGroup: true,
           },
         },
       },
@@ -218,8 +212,8 @@ export class TransactionsService {
     }
 
     // Se carteira foi alterada, verificar se pertence ao usuário
-    if (walletId && walletId !== existingTransaction.walletId) {
-      const wallet = await this.prisma.wallet.findFirst({
+    if (walletId && walletId !== existingTransaction.paymentMethodId) {
+      const wallet = await this.prisma.paymentMethod.findFirst({
         where: {
           id: walletId,
           userId: userId,
@@ -237,8 +231,8 @@ export class TransactionsService {
         ? -existingTransaction.amount 
         : existingTransaction.amount;
 
-      await prisma.wallet.update({
-        where: { id: existingTransaction.walletId },
+      await prisma.paymentMethod.update({
+        where: { id: existingTransaction.paymentMethodId },
         data: {
           currentBalance: {
             increment: originalBalanceChange,
@@ -281,11 +275,11 @@ export class TransactionsService {
       // Aplicar o novo impacto no saldo da carteira
       const newAmount = amount !== undefined ? amount : existingTransaction.amount;
       const newType = type !== undefined ? type : existingTransaction.type;
-      const newWalletId = walletId !== undefined ? walletId : existingTransaction.walletId;
+      const newWalletId = walletId !== undefined ? walletId : existingTransaction.paymentMethodId;
       
       const newBalanceChange = newType === 'INCOME' ? newAmount : -newAmount;
 
-      await prisma.wallet.update({
+      await prisma.paymentMethod.update({
         where: { id: newWalletId },
         data: {
           currentBalance: {
@@ -307,8 +301,8 @@ export class TransactionsService {
         ? -transaction.amount 
         : transaction.amount;
 
-      await prisma.wallet.update({
-        where: { id: transaction.walletId },
+      await prisma.paymentMethod.update({
+        where: { id: transaction.paymentMethodId },
         data: {
           currentBalance: {
             increment: balanceChange,
@@ -338,7 +332,7 @@ export class TransactionsService {
     }
 
     if (filters?.walletId) {
-      where.walletId = filters.walletId;
+      where.paymentMethodId = filters.walletId;
     }
 
     if (filters?.startDate || filters?.endDate) {
@@ -414,12 +408,12 @@ export class TransactionsService {
 
     // Agrupar por carteira
     const byWallet = transactions.reduce((acc, transaction) => {
-      const walletName = transaction.wallet.name;
+      const walletName = transaction.paymentMethod.name;
       if (!acc[walletName]) {
         acc[walletName] = {
-          walletId: transaction.wallet.id,
+          paymentMethodId: transaction.paymentMethod.id,
           walletName,
-          walletColor: transaction.wallet.color,
+          walletColor: transaction.paymentMethod.color,
           totalAmount: 0,
           transactionCount: 0,
         };

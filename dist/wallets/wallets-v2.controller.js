@@ -255,7 +255,7 @@ let WalletsV2Controller = class WalletsV2Controller {
     async getOverview(req) {
         try {
             const groups = await this.walletGroupsService.findAll(req.user.id);
-            const independentMethods = await this.paymentMethodsService.findAll(req.user.id, null);
+            const independentMethods = await this.paymentMethodsService.findAll(req.user.id, undefined);
             let totalBalance = 0;
             let totalCreditLimit = 0;
             let totalAvailableCredit = 0;

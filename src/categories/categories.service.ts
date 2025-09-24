@@ -105,7 +105,11 @@ export class CategoriesService {
           take: 10,
           orderBy: { date: 'desc' },
           include: {
-            wallet: true,
+            paymentMethod: {
+              include: {
+                walletGroup: true,
+              },
+            },
           },
         },
         _count: {

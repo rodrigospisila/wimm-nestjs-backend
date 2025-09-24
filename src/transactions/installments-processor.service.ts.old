@@ -28,7 +28,7 @@ export class InstallmentsProcessorService {
         },
         include: {
           category: true,
-          creditCard: true,
+          paymentMethod: { include: { walletGroup: true } },
           transactions: {
             orderBy: { date: 'asc' },
           },
@@ -77,7 +77,7 @@ export class InstallmentsProcessorService {
         });
 
         // Se é uma parcela de cartão de crédito, processar fatura
-        if (installment.installmentType === 'CREDIT_CARD' && installment.creditCardId) {
+        if (installment.installmentType === 'CREDIT_CARD' && installment.paymentMethodId) {
           await this.processCreditCardInstallment(installment, dueTransactions.slice(installment.currentInstallment));
         }
 
@@ -108,12 +108,12 @@ export class InstallmentsProcessorService {
     try {
       for (const transaction of newTransactions) {
         // Criar transação na fatura do cartão
-        await this.prisma.cardTransaction.create({
+        await this.prisma.transaction.create({
           data: {
             description: transaction.description,
             amount: transaction.amount,
             date: transaction.date,
-            creditCardId: installment.creditCardId,
+            paymentMethodId: installment.paymentMethodId,
             categoryId: installment.categoryId,
             installmentId: installment.id,
           },
@@ -134,7 +134,7 @@ export class InstallmentsProcessorService {
   private async processFixedInstallment(installment: any, newTransactions: any[]) {
     try {
       // Para parcelas fixas, precisamos encontrar a carteira associada
-      // Como não temos walletId no installment, vamos buscar na primeira transação
+      // Como não temos paymentMethodId no installment, vamos buscar na primeira transação
       const firstTransaction = await this.prisma.transaction.findFirst({
         where: {
           id: installment.transactions[0]?.id,
@@ -146,31 +146,31 @@ export class InstallmentsProcessorService {
         return;
       }
 
-      const walletId = firstTransaction.walletId;
+      const paymentMethodId = firstTransaction.paymentMethodId;
 
       for (const transaction of newTransactions) {
         // Buscar a carteira atual
-        const wallet = await this.prisma.wallet.findUnique({
-          where: { id: walletId },
+        const wallet = await this.prisma.paymentMethod.findUnique({
+          where: { id: paymentMethodId },
         });
 
         if (!wallet) {
-          this.logger.warn(`Carteira ${walletId} não encontrada`);
+          this.logger.warn(`Carteira ${paymentMethodId} não encontrada`);
           continue;
         }
 
         // Debitar o valor da carteira
         const newBalance = wallet.currentBalance - transaction.amount;
 
-        await this.prisma.wallet.update({
-          where: { id: walletId },
+        await this.prisma.paymentMethod.update({
+          where: { id: paymentMethodId },
           data: {
             currentBalance: newBalance,
           },
         });
 
         this.logger.log(
-          `Carteira ${walletId} debitada: R$ ${transaction.amount} (saldo: R$ ${newBalance})`
+          `Carteira ${paymentMethodId} debitada: R$ ${transaction.amount} (saldo: R$ ${newBalance})`
         );
       }
     } catch (error) {
@@ -258,7 +258,7 @@ export class InstallmentsProcessorService {
         },
         include: {
           category: true,
-          creditCard: true,
+          paymentMethod: { include: { walletGroup: true } },
           transactions: {
             orderBy: { date: 'asc' },
           },
@@ -372,7 +372,7 @@ export class InstallmentsProcessorService {
         },
         include: {
           category: true,
-          creditCard: true,
+          paymentMethod: { include: { walletGroup: true } },
           transactions: {
             where: {
               date: {

@@ -3,106 +3,168 @@ export declare class ReportsService {
     private prisma;
     constructor(prisma: PrismaService);
     getDashboardData(userId: number, startDate: Date, endDate: Date): Promise<{
-        totalBalance: any;
-        monthlyIncome: number;
-        monthlyExpenses: number;
-        monthlyBalance: number;
-        walletsCount: any;
-        transactionsCount: number;
-        categoriesCount: number;
-        pendingInstallments: number;
-        topCategories: ({
-            id: number;
-            name: string;
-            amount: number;
-            percentage: number;
-            color: string;
-            icon: string;
-        } | null)[];
-        recentTransactions: {
-            id: number;
-            description: string;
-            amount: number;
-            type: import("@prisma/client").$Enums.TransactionType;
-            date: string;
-            category: {
+        summary: {
+            totalBalance: number;
+            totalIncome: number;
+            totalExpense: number;
+            groupsCount: number;
+            paymentMethodsCount: number;
+            categoriesCount: number;
+        };
+        topCategories: never[];
+        recentTransactions: ({
+            paymentMethod: {
+                walletGroup: {
+                    name: string;
+                    id: number;
+                    createdAt: Date;
+                    updatedAt: Date;
+                    type: import("@prisma/client").$Enums.WalletGroupType;
+                    description: string | null;
+                    color: string;
+                    icon: string;
+                    hasIntegratedPix: boolean;
+                    hasWalletBalance: boolean;
+                    isActive: boolean;
+                    userId: number;
+                } | null;
+            } & {
                 name: string;
+                id: number;
+                createdAt: Date;
+                updatedAt: Date;
+                type: import("@prisma/client").$Enums.PaymentMethodType;
                 color: string;
                 icon: string;
+                isActive: boolean;
+                userId: number;
+                isPrimary: boolean;
+                walletGroupId: number | null;
+                currentBalance: number;
+                creditLimit: number | null;
+                closingDay: number | null;
+                dueDay: number | null;
+                accountNumber: string | null;
+                agency: string | null;
+                bankCode: string | null;
+                availableLimit: number | null;
             };
-        }[];
-    }>;
-    getCategoriesReport(userId: number, startDate: Date, endDate: Date, type?: 'INCOME' | 'EXPENSE'): Promise<{
-        percentage: number;
-        id: number;
-        name: string;
-        type: import("@prisma/client").$Enums.CategoryType;
-        color: string;
-        icon: string;
-        totalAmount: number;
-        transactionCount: number;
-        averageTransaction: number;
-        subCategories: {
+            category: {
+                name: string;
+                id: number;
+                createdAt: Date;
+                updatedAt: Date;
+                type: import("@prisma/client").$Enums.CategoryType;
+                description: string | null;
+                color: string;
+                icon: string;
+                userId: number;
+                monthlyBudget: number | null;
+                parentCategoryId: number | null;
+            };
+        } & {
             id: number;
-            name: string;
-            color: string;
-            icon: string;
-            totalAmount: number;
-            transactionCount: number;
-            percentage: number;
-        }[];
-    }[]>;
-    getTimeAnalysis(userId: number, startDate: Date, endDate: Date, period: 'daily' | 'weekly' | 'monthly'): Promise<{
-        periods: any[];
+            createdAt: Date;
+            updatedAt: Date;
+            type: import("@prisma/client").$Enums.TransactionType;
+            description: string;
+            userId: number;
+            paymentMethodId: number;
+            amount: number;
+            date: Date;
+            categoryId: number;
+            subcategoryId: number | null;
+            creditCardBillId: number | null;
+            installmentId: number | null;
+            installmentNumber: number | null;
+            transferToMethodId: number | null;
+            notes: string | null;
+            tags: string | null;
+            isRecurring: boolean;
+        })[];
+    }>;
+    getCategoriesReport(userId: number, startDate: Date, endDate: Date, type?: string): Promise<{
+        categories: never[];
         summary: {
-            totalIncome: any;
-            totalExpenses: any;
-            totalBalance: number;
-            averageDaily: number;
-            bestDay: any;
-            worstDay: any;
+            totalAmount: number;
+            categoriesCount: number;
+            transactionsCount: number;
         };
     }>;
-    getInstallmentsReport(userId: number, startDate: Date, endDate: Date, status?: 'ACTIVE' | 'COMPLETED' | 'OVERDUE'): Promise<{
+    getTimeAnalysis(userId: number, startDate: Date, endDate: Date, period?: string): Promise<{
+        periods: never[];
+        summary: {
+            totalIncome: number;
+            totalExpense: number;
+            totalNet: number;
+            totalTransactions: number;
+            periodsCount: number;
+        };
+    }>;
+    getInstallmentsReport(userId: number, status?: string): Promise<{
         installments: {
             id: number;
             description: string;
             totalAmount: number;
             installmentCount: number;
-            paidInstallments: number;
-            remainingAmount: number;
-            nextDueDate: string | null;
-            status: "ACTIVE" | "COMPLETED" | "OVERDUE";
-            installmentType: import("@prisma/client").$Enums.InstallmentType;
-            category: any;
-            wallet: {
-                id: any;
-                name: any;
+            currentInstallment: number;
+            isActive: boolean;
+            category: {
+                name: string;
+                id: number;
+                createdAt: Date;
+                updatedAt: Date;
+                type: import("@prisma/client").$Enums.CategoryType;
+                description: string | null;
                 color: string;
                 icon: string;
-            } | null;
-            installments: {
+                userId: number;
+                monthlyBudget: number | null;
+                parentCategoryId: number | null;
+            };
+            paymentMethod: {
+                walletGroup: {
+                    name: string;
+                    id: number;
+                    createdAt: Date;
+                    updatedAt: Date;
+                    type: import("@prisma/client").$Enums.WalletGroupType;
+                    description: string | null;
+                    color: string;
+                    icon: string;
+                    hasIntegratedPix: boolean;
+                    hasWalletBalance: boolean;
+                    isActive: boolean;
+                    userId: number;
+                } | null;
+            } & {
+                name: string;
                 id: number;
-                installmentNumber: number;
-                amount: number;
-                dueDate: string;
-                status: "OVERDUE" | "PENDING" | "PAID";
-            }[];
+                createdAt: Date;
+                updatedAt: Date;
+                type: import("@prisma/client").$Enums.PaymentMethodType;
+                color: string;
+                icon: string;
+                isActive: boolean;
+                userId: number;
+                isPrimary: boolean;
+                walletGroupId: number | null;
+                currentBalance: number;
+                creditLimit: number | null;
+                closingDay: number | null;
+                dueDay: number | null;
+                accountNumber: string | null;
+                agency: string | null;
+                bankCode: string | null;
+                availableLimit: number | null;
+            };
+            createdAt: Date;
         }[];
         summary: {
-            totalActive: number;
-            totalCompleted: number;
-            totalOverdue: number;
-            totalPendingAmount: number;
-            totalPaidAmount: number;
-            nextPayments: {
-                id: number;
-                description: string;
-                amount: number;
-                dueDate: string | null;
-                installmentNumber: number;
-                totalInstallments: number;
-            }[];
+            totalInstallments: number;
+            activeInstallments: number;
+            completedInstallments: number;
+            totalAmount: number;
         };
     }>;
 }

@@ -65,6 +65,6 @@ export class ReportsController {
     const start = startDate ? new Date(startDate) : new Date(new Date().getFullYear(), new Date().getMonth(), 1);
     const end = endDate ? new Date(endDate) : new Date();
     
-    return this.reportsService.getInstallmentsReport(userId, start, end, status);
+    return this.reportsService.getInstallmentsReport(userId, status);
   }
 }

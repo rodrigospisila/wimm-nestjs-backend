@@ -9,8 +9,8 @@ export class InstallmentsService {
   async createInstallmentTransaction(userId: number, createInstallmentDto: CreateInstallmentTransactionDto) {
     const {
       categoryId,
-      walletId,
-      creditCardId,
+      paymentMethodId,
+      paymentMethodId,
       totalAmount,
       installmentCount,
       installmentType,
@@ -32,9 +32,9 @@ export class InstallmentsService {
     }
 
     // Verificar se a carteira pertence ao usuário
-    const wallet = await this.prisma.wallet.findFirst({
+    const wallet = await this.prisma.paymentMethod.findFirst({
       where: {
-        id: walletId,
+        id: paymentMethodId,
         userId: userId,
       },
     });
@@ -44,10 +44,10 @@ export class InstallmentsService {
     }
 
     // Se for cartão de crédito, verificar se o cartão existe
-    if (installmentType === InstallmentType.CREDIT_CARD && creditCardId) {
-      const creditCard = await this.prisma.creditCard.findFirst({
+    if (installmentType === InstallmentType.CREDIT_CARD && paymentMethodId) {
+      const creditCard = await this.prisma.paymentMethod.findFirst({
         where: {
-          id: creditCardId,
+          id: paymentMethodId,
           userId: userId,
         },
       });
@@ -78,12 +78,12 @@ export class InstallmentsService {
           currentInstallment: 0,
           categoryId,
           startDate: baseDate,
-          ...(creditCardId && { creditCardId }),
+          ...(paymentMethodId && { paymentMethodId }),
         },
       });
 
       // Criar as transações individuais de cada parcela
-      const transactions: any[] = [];
+      const Transaction: any[] = [];
       for (let i = 1; i <= installmentCount; i++) {
         const installmentDate = new Date(baseDate);
         installmentDate.setMonth(baseDate.getMonth() + (i - 1));
@@ -95,14 +95,14 @@ export class InstallmentsService {
 
         const amount = i === installmentCount ? lastInstallmentAmount : installmentAmount;
 
-        if (installmentType === InstallmentType.CREDIT_CARD && creditCardId) {
+        if (installmentType === InstallmentType.CREDIT_CARD && paymentMethodId) {
           // Criar transação de cartão de crédito
-          const cardTransaction = await prisma.cardTransaction.create({
+          const cardTransaction = await prisma.transaction.create({
             data: {
               description: `${transactionData.description} (${i}/${installmentCount})`,
               amount,
               date: installmentDate,
-              creditCardId,
+              paymentMethodId,
               categoryId,
               installmentId: installment.id,
             },
@@ -118,14 +118,14 @@ export class InstallmentsService {
               type: 'EXPENSE',
               userId,
               categoryId,
-              walletId,
+              paymentMethodId,
             },
           });
 
           // Atualizar saldo da carteira apenas para a primeira parcela (se for débito imediato)
           if (i === 1 && installmentType === InstallmentType.FIXED) {
-            await prisma.wallet.update({
-              where: { id: walletId },
+            await prisma.paymentMethod.update({
+              where: { id: paymentMethodId },
               data: {
                 currentBalance: {
                   decrement: amount,
@@ -151,7 +151,7 @@ export class InstallmentsService {
                 type: true,
               },
             },
-            creditCard: creditCardId ? {
+            paymentMethod: paymentMethodId ? {
               select: {
                 id: true,
                 name: true,
@@ -160,7 +160,7 @@ export class InstallmentsService {
                 dueDay: true,
               },
             } : false,
-            transactions: installmentType !== InstallmentType.CREDIT_CARD,
+            Transaction: installmentType !== InstallmentType.CREDIT_CARD,
           },
         }),
         transactions,
@@ -177,8 +177,8 @@ export class InstallmentsService {
 
   async findAllInstallments(userId: number, filters?: {
     categoryId?: number;
-    walletId?: number;
-    creditCardId?: number;
+    paymentMethodId?: number;
+    paymentMethodId?: number;
     status?: 'ACTIVE' | 'COMPLETED' | 'CANCELLED';
     limit?: number;
     offset?: number;
@@ -195,12 +195,12 @@ export class InstallmentsService {
       where.categoryId = filters.categoryId;
     }
 
-    if (filters?.walletId) {
-      where.walletId = filters.walletId;
+    if (filters?.paymentMethodId) {
+      where.paymentMethodId = filters.paymentMethodId;
     }
 
-    if (filters?.creditCardId) {
-      where.creditCardId = filters.creditCardId;
+    if (filters?.paymentMethodId) {
+      where.paymentMethodId = filters.paymentMethodId;
     }
 
     const installments = await this.prisma.installment.findMany({
@@ -215,16 +215,9 @@ export class InstallmentsService {
             type: true,
           },
         },
-        creditCard: {
-          select: {
-            id: true,
-            name: true,
-            limit: true,
-            closingDay: true,
-            dueDay: true,
-          },
+        paymentMethod: { include: { walletGroup: true } },
         },
-        transactions: {
+        Transaction: {
           select: {
             id: true,
             description: true,
@@ -286,16 +279,9 @@ export class InstallmentsService {
             type: true,
           },
         },
-        creditCard: {
-          select: {
-            id: true,
-            name: true,
-            limit: true,
-            closingDay: true,
-            dueDay: true,
-          },
+        paymentMethod: { include: { walletGroup: true } },
         },
-        transactions: {
+        Transaction: {
           select: {
             id: true,
             description: true,
@@ -392,7 +378,7 @@ export class InstallmentsService {
       this.prisma.installment.count({
         where: {
           ...where,
-          transactions: {
+          Transaction: {
             some: {
               date: {
                 gt: new Date(),
@@ -404,7 +390,7 @@ export class InstallmentsService {
       this.prisma.installment.count({
         where: {
           ...where,
-          transactions: {
+          Transaction: {
             none: {
               date: {
                 gt: new Date(),
