@@ -141,12 +141,12 @@ export declare class ReportsService {
             isActive: boolean;
             userId: number;
             paymentMethodId: number;
+            startDate: Date;
             categoryId: number;
             subcategoryId: number | null;
             notes: string | null;
             tags: string | null;
             totalAmount: number;
-            startDate: Date;
             installmentCount: number;
             currentInstallment: number;
             installmentType: import("@prisma/client").$Enums.InstallmentType;

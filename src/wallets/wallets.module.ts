@@ -1,11 +1,12 @@
 import { Module } from '@nestjs/common';
 import { WalletsV2Controller } from './wallets-v2.controller';
+import { WalletsController } from './wallets.controller';
 import { WalletGroupsService } from './wallet-groups.service';
 import { PaymentMethodsService } from './payment-methods.service';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Module({
-  controllers: [WalletsV2Controller],
+  controllers: [WalletsV2Controller, WalletsController],
   providers: [WalletGroupsService, PaymentMethodsService, PrismaService],
   exports: [WalletGroupsService, PaymentMethodsService],
 })

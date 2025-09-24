@@ -122,4 +122,8 @@ export class AuthService {
 
     return { user };
   }
+
+  async getMe(userId: number) {
+    return this.me(userId);
+  }
 }

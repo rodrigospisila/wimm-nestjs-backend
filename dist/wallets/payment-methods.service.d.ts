@@ -26,10 +26,10 @@ export declare class PaymentMethodsService {
         creditLimit: number | null;
         closingDay: number | null;
         dueDay: number | null;
+        availableLimit: number | null;
         accountNumber: string | null;
         agency: string | null;
         bankCode: string | null;
-        availableLimit: number | null;
     })[]>;
     findIndependentByUser(userId: number): Promise<{
         name: string;
@@ -47,10 +47,10 @@ export declare class PaymentMethodsService {
         creditLimit: number | null;
         closingDay: number | null;
         dueDay: number | null;
+        availableLimit: number | null;
         accountNumber: string | null;
         agency: string | null;
         bankCode: string | null;
-        availableLimit: number | null;
     }[]>;
     findOne(userId: number, id: number): Promise<{
         walletGroup: {
@@ -75,10 +75,10 @@ export declare class PaymentMethodsService {
         creditLimit: number | null;
         closingDay: number | null;
         dueDay: number | null;
+        availableLimit: number | null;
         accountNumber: string | null;
         agency: string | null;
         bankCode: string | null;
-        availableLimit: number | null;
     }>;
     create(userId: number, createMethodDto: CreatePaymentMethodDto): Promise<{
         walletGroup: {
@@ -103,10 +103,10 @@ export declare class PaymentMethodsService {
         creditLimit: number | null;
         closingDay: number | null;
         dueDay: number | null;
+        availableLimit: number | null;
         accountNumber: string | null;
         agency: string | null;
         bankCode: string | null;
-        availableLimit: number | null;
     }>;
     update(userId: number, id: number, updateMethodDto: Partial<CreatePaymentMethodDto>): Promise<{
         walletGroup: {
@@ -131,10 +131,10 @@ export declare class PaymentMethodsService {
         creditLimit: number | null;
         closingDay: number | null;
         dueDay: number | null;
+        availableLimit: number | null;
         accountNumber: string | null;
         agency: string | null;
         bankCode: string | null;
-        availableLimit: number | null;
     }>;
     remove(userId: number, id: number): Promise<{
         name: string;
@@ -152,10 +152,10 @@ export declare class PaymentMethodsService {
         creditLimit: number | null;
         closingDay: number | null;
         dueDay: number | null;
+        availableLimit: number | null;
         accountNumber: string | null;
         agency: string | null;
         bankCode: string | null;
-        availableLimit: number | null;
     }>;
     setPrimary(userId: number, id: number): Promise<{
         walletGroup: {
@@ -180,10 +180,10 @@ export declare class PaymentMethodsService {
         creditLimit: number | null;
         closingDay: number | null;
         dueDay: number | null;
+        availableLimit: number | null;
         accountNumber: string | null;
         agency: string | null;
         bankCode: string | null;
-        availableLimit: number | null;
     }>;
     getCount(userId: number): Promise<number>;
     getTotalBalance(userId: number): Promise<number>;

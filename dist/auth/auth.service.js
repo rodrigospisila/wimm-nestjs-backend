@@ -141,6 +141,9 @@ let AuthService = class AuthService {
         }
         return { user };
     }
+    async getMe(userId) {
+        return this.me(userId);
+    }
 };
 exports.AuthService = AuthService;
 exports.AuthService = AuthService = __decorate([

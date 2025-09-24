@@ -24,10 +24,10 @@ export declare class WalletsV2Controller {
                 creditLimit: number | null;
                 closingDay: number | null;
                 dueDay: number | null;
+                availableLimit: number | null;
                 accountNumber: string | null;
                 agency: string | null;
                 bankCode: string | null;
-                availableLimit: number | null;
             }[];
         } & {
             name: string;
@@ -59,10 +59,10 @@ export declare class WalletsV2Controller {
             creditLimit: number | null;
             closingDay: number | null;
             dueDay: number | null;
+            availableLimit: number | null;
             accountNumber: string | null;
             agency: string | null;
             bankCode: string | null;
-            availableLimit: number | null;
         }[];
         summary: {
             totalBalance: number;
@@ -90,10 +90,10 @@ export declare class WalletsV2Controller {
             creditLimit: number | null;
             closingDay: number | null;
             dueDay: number | null;
+            availableLimit: number | null;
             accountNumber: string | null;
             agency: string | null;
             bankCode: string | null;
-            availableLimit: number | null;
         }[];
     } & {
         name: string;
@@ -126,10 +126,10 @@ export declare class WalletsV2Controller {
             creditLimit: number | null;
             closingDay: number | null;
             dueDay: number | null;
+            availableLimit: number | null;
             accountNumber: string | null;
             agency: string | null;
             bankCode: string | null;
-            availableLimit: number | null;
         }[];
     } & {
         name: string;
@@ -162,10 +162,10 @@ export declare class WalletsV2Controller {
             creditLimit: number | null;
             closingDay: number | null;
             dueDay: number | null;
+            availableLimit: number | null;
             accountNumber: string | null;
             agency: string | null;
             bankCode: string | null;
-            availableLimit: number | null;
         }[];
     } & {
         name: string;
@@ -229,10 +229,10 @@ export declare class WalletsV2Controller {
         creditLimit: number | null;
         closingDay: number | null;
         dueDay: number | null;
+        availableLimit: number | null;
         accountNumber: string | null;
         agency: string | null;
         bankCode: string | null;
-        availableLimit: number | null;
     })[]>;
     createPaymentMethod(req: any, createMethodDto: CreatePaymentMethodDto): Promise<{
         walletGroup: {
@@ -257,10 +257,10 @@ export declare class WalletsV2Controller {
         creditLimit: number | null;
         closingDay: number | null;
         dueDay: number | null;
+        availableLimit: number | null;
         accountNumber: string | null;
         agency: string | null;
         bankCode: string | null;
-        availableLimit: number | null;
     }>;
     updatePaymentMethod(req: any, id: number, updateMethodDto: Partial<CreatePaymentMethodDto>): Promise<{
         walletGroup: {
@@ -285,10 +285,10 @@ export declare class WalletsV2Controller {
         creditLimit: number | null;
         closingDay: number | null;
         dueDay: number | null;
+        availableLimit: number | null;
         accountNumber: string | null;
         agency: string | null;
         bankCode: string | null;
-        availableLimit: number | null;
     }>;
     deletePaymentMethod(req: any, id: number): Promise<{
         name: string;
@@ -306,10 +306,10 @@ export declare class WalletsV2Controller {
         creditLimit: number | null;
         closingDay: number | null;
         dueDay: number | null;
+        availableLimit: number | null;
         accountNumber: string | null;
         agency: string | null;
         bankCode: string | null;
-        availableLimit: number | null;
     }>;
     getPaymentMethodTypes(): Promise<{
         types: {
@@ -342,10 +342,10 @@ export declare class WalletsV2Controller {
         creditLimit: number | null;
         closingDay: number | null;
         dueDay: number | null;
+        availableLimit: number | null;
         accountNumber: string | null;
         agency: string | null;
         bankCode: string | null;
-        availableLimit: number | null;
     }>;
     private getFinancialSummary;
 }

@@ -33,4 +33,15 @@ export declare class AuthController {
             createdAt: Date;
         };
     }>;
+    getMe(req: any): Promise<{
+        user: {
+            name: string;
+            email: string;
+            themePreference: import("@prisma/client").$Enums.ThemePreference;
+            id: number;
+            biometricEnabled: boolean;
+            notificationSettings: import("@prisma/client/runtime/library").JsonValue;
+            createdAt: Date;
+        };
+    }>;
 }

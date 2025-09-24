@@ -9,6 +9,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.WalletsModule = void 0;
 const common_1 = require("@nestjs/common");
 const wallets_v2_controller_1 = require("./wallets-v2.controller");
+const wallets_controller_1 = require("./wallets.controller");
 const wallet_groups_service_1 = require("./wallet-groups.service");
 const payment_methods_service_1 = require("./payment-methods.service");
 const prisma_service_1 = require("../prisma/prisma.service");
@@ -17,7 +18,7 @@ let WalletsModule = class WalletsModule {
 exports.WalletsModule = WalletsModule;
 exports.WalletsModule = WalletsModule = __decorate([
     (0, common_1.Module)({
-        controllers: [wallets_v2_controller_1.WalletsV2Controller],
+        controllers: [wallets_v2_controller_1.WalletsV2Controller, wallets_controller_1.WalletsController],
         providers: [wallet_groups_service_1.WalletGroupsService, payment_methods_service_1.PaymentMethodsService, prisma_service_1.PrismaService],
         exports: [wallet_groups_service_1.WalletGroupsService, payment_methods_service_1.PaymentMethodsService],
     })

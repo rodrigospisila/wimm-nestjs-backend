@@ -20,10 +20,10 @@ export declare class WalletGroupsService {
             creditLimit: number | null;
             closingDay: number | null;
             dueDay: number | null;
+            availableLimit: number | null;
             accountNumber: string | null;
             agency: string | null;
             bankCode: string | null;
-            availableLimit: number | null;
         }[];
     } & {
         name: string;
@@ -56,10 +56,10 @@ export declare class WalletGroupsService {
             creditLimit: number | null;
             closingDay: number | null;
             dueDay: number | null;
+            availableLimit: number | null;
             accountNumber: string | null;
             agency: string | null;
             bankCode: string | null;
-            availableLimit: number | null;
         }[];
     } & {
         name: string;
@@ -92,10 +92,10 @@ export declare class WalletGroupsService {
             creditLimit: number | null;
             closingDay: number | null;
             dueDay: number | null;
+            availableLimit: number | null;
             accountNumber: string | null;
             agency: string | null;
             bankCode: string | null;
-            availableLimit: number | null;
         }[];
     } & {
         name: string;
@@ -128,10 +128,10 @@ export declare class WalletGroupsService {
             creditLimit: number | null;
             closingDay: number | null;
             dueDay: number | null;
+            availableLimit: number | null;
             accountNumber: string | null;
             agency: string | null;
             bankCode: string | null;
-            availableLimit: number | null;
         }[];
     } & {
         name: string;

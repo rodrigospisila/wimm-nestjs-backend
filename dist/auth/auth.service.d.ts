@@ -41,4 +41,15 @@ export declare class AuthService {
             createdAt: Date;
         };
     }>;
+    getMe(userId: number): Promise<{
+        user: {
+            name: string;
+            email: string;
+            themePreference: import("@prisma/client").$Enums.ThemePreference;
+            id: number;
+            biometricEnabled: boolean;
+            notificationSettings: import("@prisma/client/runtime/library").JsonValue;
+            createdAt: Date;
+        };
+    }>;
 }
