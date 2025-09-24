@@ -18,6 +18,10 @@ export class CreateTransactionDto {
   @IsInt()
   categoryId: number;
 
+  @IsOptional()
+  @IsInt()
+  subcategoryId?: number;
+
   @IsInt()
   paymentMethodId: number;
 

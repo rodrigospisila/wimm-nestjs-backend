@@ -18,6 +18,7 @@ class CreateTransactionDto {
     date;
     type;
     categoryId;
+    subcategoryId;
     paymentMethodId;
     notes;
     installmentId;
@@ -45,6 +46,11 @@ __decorate([
     (0, class_validator_1.IsInt)(),
     __metadata("design:type", Number)
 ], CreateTransactionDto.prototype, "categoryId", void 0);
+__decorate([
+    (0, class_validator_1.IsOptional)(),
+    (0, class_validator_1.IsInt)(),
+    __metadata("design:type", Number)
+], CreateTransactionDto.prototype, "subcategoryId", void 0);
 __decorate([
     (0, class_validator_1.IsInt)(),
     __metadata("design:type", Number)
