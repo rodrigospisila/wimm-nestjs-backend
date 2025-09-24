@@ -325,10 +325,18 @@ export class CategoriesService {
         color: '#FF6B6B',
         icon: 'restaurant',
         subcategories: [
-          { name: 'Supermercado', color: '#FF8E8E', icon: 'storefront' },
-          { name: 'Restaurante', color: '#FFB3B3', icon: 'restaurant' },
-          { name: 'Delivery', color: '#FFC9C9', icon: 'bicycle' },
-          { name: 'Lanchonete', color: '#FFD9D9', icon: 'cafe' },
+          { name: 'Café', color: '#FF8E8E', icon: 'cafe' },
+          { name: 'Almoço', color: '#FFB3B3', icon: 'restaurant' },
+          { name: 'iFood', color: '#FFC9C9', icon: 'bicycle' },
+        ],
+      },
+      {
+        name: 'Mercado',
+        type: CategoryType.EXPENSE,
+        color: '#4CAF50',
+        icon: 'storefront',
+        subcategories: [
+          { name: 'Casa', color: '#66BB6A', icon: 'home' },
         ],
       },
       {
@@ -349,11 +357,9 @@ export class CategoriesService {
         color: '#45B7D1',
         icon: 'home',
         subcategories: [
-          { name: 'Aluguel', color: '#67C5D7', icon: 'home' },
-          { name: 'Condomínio', color: '#89D3DD', icon: 'business' },
-          { name: 'Energia Elétrica', color: '#ABE1E3', icon: 'flash' },
+          { name: 'Parcela', color: '#67C5D7', icon: 'home' },
+          { name: 'Luz', color: '#ABE1E3', icon: 'flash' },
           { name: 'Água', color: '#CDEFE9', icon: 'water' },
-          { name: 'Internet', color: '#E8F6F3', icon: 'wifi' },
         ],
       },
       {
