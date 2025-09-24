@@ -1,3 +1,9 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
 generator client {
   provider = "prisma-client-js"
 }
@@ -8,10 +14,292 @@ datasource db {
 }
 
 model User {
-  id        Int      @id @default(autoincrement())
-  name      String
-  email     String   @unique
-  password  String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id                    Int                     @id @default(autoincrement())
+  name                  String
+  email                 String                  @unique
+  password              String
+  themePreference       ThemePreference         @default(SYSTEM)
+  biometricEnabled      Boolean                 @default(false)
+  pinCode               String?
+  notificationSettings  Json                    @default("{\"budget_alerts\":true,\"bill_reminders\":true,\"transaction_confirmations\":true}")
+  createdAt             DateTime                @default(now())
+  updatedAt             DateTime                @updatedAt
+
+  walletGroups          WalletGroup[]
+  paymentMethods        PaymentMethod[]
+  categories            Category[]
+  transactions          Transaction[]
+  installments          Installment[]
+  budgets               Budget[]
+  bankConnections       BankConnection[]
+  notifications         Notification[]
+  userSettings          UserSettings[]
+}
+
+// Novo modelo: Grupo de Carteiras (ex: Nubank, Mercado Pago, Bancos Tradicionais)
+model WalletGroup {
+  id              Int             @id @default(autoincrement())
+  name            String          // "Nubank", "Mercado Pago", "Itaú", etc.
+  type            WalletGroupType
+  description     String?
+  color           String          @default("#4CAF50")
+  icon            String          @default("wallet")
+  isActive        Boolean         @default(true)
+  // Configurações específicas para carteiras digitais
+  hasIntegratedPix Boolean        @default(false)
+  hasWalletBalance Boolean        @default(false)
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  
+  user            User            @relation(fields: [userId], references: [id])
+  userId          Int
+  paymentMethods  PaymentMethod[]
+}
+
+// Novo modelo: Métodos de Pagamento (cartões, contas, saldo, PIX dentro de cada carteira)
+model PaymentMethod {
+  id              Int                 @id @default(autoincrement())
+  name            String              // "Cartão de Crédito", "Cartão de Débito", "Saldo", "PIX"
+  type            PaymentMethodType
+  currentBalance  Float               @default(0)
+  
+  // Campos específicos para cartão de crédito
+  creditLimit     Float?
+  closingDay      Int?                // 1-28
+  dueDay          Int?                // Deve ser posterior ao closingDay
+  availableLimit  Float?              // Calculado: creditLimit - saldoUtilizado
+  
+  // Campos específicos para contas bancárias
+  accountNumber   String?
+  agency          String?
+  bankCode        String?
+  
+  // Configurações gerais
+  isActive        Boolean             @default(true)
+  isPrimary       Boolean             @default(false) // Método principal da carteira
+  color           String              @default("#4CAF50")
+  icon            String              @default("credit-card")
+  
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+  
+  // Relacionamentos
+  user            User                @relation(fields: [userId], references: [id])
+  userId          Int
+  walletGroup     WalletGroup?        @relation(fields: [walletGroupId], references: [id])
+  walletGroupId   Int?                // Null para contas independentes (ex: Poupança Bradesco)
+  
+  transactions    Transaction[]
+  installments    Installment[]
+  creditCardBills CreditCardBill[]
+}
+
+// Novo modelo: Faturas de Cartão de Crédito
+model CreditCardBill {
+  id              Int             @id @default(autoincrement())
+  paymentMethod   PaymentMethod   @relation(fields: [paymentMethodId], references: [id])
+  paymentMethodId Int
+  
+  referenceMonth  Int             // 1-12
+  referenceYear   Int
+  closingDate     DateTime
+  dueDate         DateTime
+  
+  totalAmount     Float           @default(0)
+  paidAmount      Float           @default(0)
+  remainingAmount Float           @default(0)
+  
+  status          BillStatus      @default(OPEN)
+  
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  
+  transactions    Transaction[]
+  
+  @@unique([paymentMethodId, referenceMonth, referenceYear])
+}
+
+model Category {
+  id                Int           @id @default(autoincrement())
+  name              String
+  type              CategoryType
+  description       String?
+  color             String        @default("#4CAF50")
+  icon              String        @default("category")
+  monthlyBudget     Float?
+  parentCategory    Category?     @relation("SubCategories", fields: [parentCategoryId], references: [id])
+  parentCategoryId  Int?
+  subCategories     Category[]    @relation("SubCategories")
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+  user              User          @relation(fields: [userId], references: [id])
+  userId            Int
+  transactions      Transaction[]
+  installments      Installment[]
+  budgets           Budget[]
+}
+
+model Transaction {
+  id                Int             @id @default(autoincrement())
+  description       String
+  amount            Float
+  date              DateTime
+  type              TransactionType
+  
+  // Novo relacionamento com método de pagamento
+  paymentMethod     PaymentMethod   @relation(fields: [paymentMethodId], references: [id])
+  paymentMethodId   Int
+  
+  category          Category        @relation(fields: [categoryId], references: [id])
+  categoryId        Int
+  subcategoryId     Int?            // Referência opcional para subcategoria
+  
+  // Para transações de cartão de crédito
+  creditCardBill    CreditCardBill? @relation(fields: [creditCardBillId], references: [id])
+  creditCardBillId  Int?
+  
+  // Para parcelas
+  installment       Installment?    @relation(fields: [installmentId], references: [id])
+  installmentId     Int?
+  installmentNumber Int?            // Número da parcela (1/12, 2/12, etc.)
+  
+  // Para transferências
+  transferToMethodId Int?           // ID do método de destino
+  
+  notes             String?
+  tags              String?
+  isRecurring       Boolean         @default(false)
+  
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+  
+  user              User            @relation(fields: [userId], references: [id])
+  userId            Int
+}
+
+model Installment {
+  id                Int                 @id @default(autoincrement())
+  description       String
+  totalAmount       Float
+  installmentCount  Int
+  currentInstallment Int               @default(0)
+  
+  paymentMethod     PaymentMethod       @relation(fields: [paymentMethodId], references: [id])
+  paymentMethodId   Int
+  
+  category          Category            @relation(fields: [categoryId], references: [id])
+  categoryId        Int
+  subcategoryId     Int?                // Referência opcional para subcategoria
+  
+  startDate         DateTime
+  installmentType   InstallmentType     @default(FIXED)
+  notes             String?
+  tags              String?
+  isActive          Boolean             @default(true)
+  
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+  
+  transactions      Transaction[]
+  
+  user              User                @relation(fields: [userId], references: [id])
+  userId            Int
+}
+
+model BankConnection {
+  id          Int      @id @default(autoincrement())
+  bankCode    String
+  bankName    String
+  accessToken String
+  refreshToken String?
+  user        User     @relation(fields: [userId], references: [id])
+  userId      Int
+  isActive    Boolean  @default(true)
+  lastSync    DateTime @default(now())
+}
+
+model Budget {
+  id           Int      @id @default(autoincrement())
+  category     Category @relation(fields: [categoryId], references: [id])
+  categoryId   Int
+  subcategoryId Int?    // Orçamento pode ser para subcategoria específica
+  monthlyLimit Float
+  currentSpent Float
+  month        Int
+  year         Int
+  user         User     @relation(fields: [userId], references: [id])
+  userId       Int
+}
+
+model Notification {
+  id            Int      @id @default(autoincrement())
+  type          String
+  title         String
+  message       String
+  isRead        Boolean  @default(false)
+  scheduledDate DateTime?
+  user          User     @relation(fields: [userId], references: [id])
+  userId        Int
+}
+
+model UserSettings {
+  id                   Int      @id @default(autoincrement())
+  user                 User     @relation(fields: [userId], references: [id])
+  userId               Int      @unique
+  currency             String   @default("BRL")
+  dateFormat           String   @default("DD/MM/YYYY")
+  language             String   @default("pt-BR")
+  timezone             String   @default("America/Sao_Paulo")
+  allowNegativeBalance Boolean  @default(true)
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+}
+
+// Novos Enums
+enum WalletGroupType {
+  DIGITAL_WALLET      // Nubank, Mercado Pago, PicPay
+  TRADITIONAL_BANK    // Itaú, Bradesco, Santander
+  INVESTMENT          // XP, Rico, Clear
+  OTHER
+}
+
+enum PaymentMethodType {
+  CREDIT_CARD         // Cartão de Crédito
+  DEBIT_CARD          // Cartão de Débito
+  WALLET_BALANCE      // Saldo da Carteira Digital
+  PIX                 // PIX
+  CHECKING_ACCOUNT    // Conta Corrente
+  SAVINGS_ACCOUNT     // Poupança
+  CASH                // Dinheiro
+  INVESTMENT          // Investimentos
+  OTHER
+}
+
+enum BillStatus {
+  OPEN                // Fatura em aberto
+  CLOSED              // Fatura fechada
+  PAID                // Fatura paga
+  OVERDUE             // Fatura em atraso
+}
+
+enum ThemePreference {
+  LIGHT
+  DARK
+  SYSTEM
+}
+
+enum CategoryType {
+  INCOME
+  EXPENSE
+}
+
+enum TransactionType {
+  INCOME
+  EXPENSE
+  TRANSFER
+}
+
+enum InstallmentType {
+  FIXED
+  CREDIT_CARD
 }
