@@ -193,6 +193,7 @@ let WalletGroupsService = class WalletGroupsService {
                         },
                     });
                     createdGroups.push(created);
+                    await this.createDefaultPaymentMethods(userId, created.id, created.type);
                 }
             }
             catch (error) {
@@ -221,6 +222,69 @@ let WalletGroupsService = class WalletGroupsService {
             [client_1.WalletGroupType.OTHER]: 'Outras instituições financeiras',
         };
         return descriptions[type] || '';
+    }
+    async createDefaultPaymentMethods(userId, walletGroupId, groupType) {
+        const defaultMethods = [];
+        if (groupType === client_1.WalletGroupType.DIGITAL_WALLET) {
+            defaultMethods.push({
+                name: 'Cartão de Crédito',
+                type: 'CREDIT_CARD',
+                currentBalance: 0,
+                creditLimit: 1000,
+                availableLimit: 1000,
+                closingDay: 5,
+                dueDay: 15,
+                isPrimary: true,
+                color: '#4CAF50',
+                icon: 'credit-card',
+            }, {
+                name: 'Cartão de Débito',
+                type: 'DEBIT_CARD',
+                currentBalance: 0,
+                isPrimary: false,
+                color: '#2196F3',
+                icon: 'card',
+            }, {
+                name: 'Saldo da Carteira',
+                type: 'WALLET_BALANCE',
+                currentBalance: 0,
+                isPrimary: false,
+                color: '#FF9800',
+                icon: 'wallet',
+            });
+        }
+        else if (groupType === client_1.WalletGroupType.TRADITIONAL_BANK) {
+            defaultMethods.push({
+                name: 'Conta Corrente',
+                type: 'CHECKING_ACCOUNT',
+                currentBalance: 0,
+                isPrimary: true,
+                color: '#607D8B',
+                icon: 'business',
+            }, {
+                name: 'Poupança',
+                type: 'SAVINGS_ACCOUNT',
+                currentBalance: 0,
+                isPrimary: false,
+                color: '#4CAF50',
+                icon: 'piggy-bank',
+            });
+        }
+        for (const methodData of defaultMethods) {
+            try {
+                await this.prisma.paymentMethod.create({
+                    data: {
+                        ...methodData,
+                        userId,
+                        walletGroupId,
+                        isActive: true,
+                    },
+                });
+            }
+            catch (error) {
+                console.error(`Erro ao criar método de pagamento ${methodData.name}:`, error);
+            }
+        }
     }
 };
 exports.WalletGroupsService = WalletGroupsService;

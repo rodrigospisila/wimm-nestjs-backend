@@ -212,6 +212,9 @@ export class WalletGroupsService {
             },
           });
           createdGroups.push(created);
+
+          // Criar métodos de pagamento padrão para o grupo
+          await this.createDefaultPaymentMethods(userId, created.id, created.type);
         }
       } catch (error) {
         console.error(`Erro ao criar grupo ${groupData.name}:`, error);
@@ -242,5 +245,79 @@ export class WalletGroupsService {
       [WalletGroupType.OTHER]: 'Outras instituições financeiras',
     };
     return descriptions[type] || '';
+  }
+
+  private async createDefaultPaymentMethods(userId: number, walletGroupId: number, groupType: WalletGroupType) {
+    const defaultMethods: any[] = [];
+
+    if (groupType === WalletGroupType.DIGITAL_WALLET) {
+      // Carteiras digitais têm cartão de crédito, débito e saldo
+      defaultMethods.push(
+        {
+          name: 'Cartão de Crédito',
+          type: 'CREDIT_CARD',
+          currentBalance: 0,
+          creditLimit: 1000,
+          availableLimit: 1000,
+          closingDay: 5,
+          dueDay: 15,
+          isPrimary: true,
+          color: '#4CAF50',
+          icon: 'credit-card',
+        },
+        {
+          name: 'Cartão de Débito',
+          type: 'DEBIT_CARD',
+          currentBalance: 0,
+          isPrimary: false,
+          color: '#2196F3',
+          icon: 'card',
+        },
+        {
+          name: 'Saldo da Carteira',
+          type: 'WALLET_BALANCE',
+          currentBalance: 0,
+          isPrimary: false,
+          color: '#FF9800',
+          icon: 'wallet',
+        }
+      );
+    } else if (groupType === WalletGroupType.TRADITIONAL_BANK) {
+      // Bancos tradicionais têm conta corrente e poupança
+      defaultMethods.push(
+        {
+          name: 'Conta Corrente',
+          type: 'CHECKING_ACCOUNT',
+          currentBalance: 0,
+          isPrimary: true,
+          color: '#607D8B',
+          icon: 'business',
+        },
+        {
+          name: 'Poupança',
+          type: 'SAVINGS_ACCOUNT',
+          currentBalance: 0,
+          isPrimary: false,
+          color: '#4CAF50',
+          icon: 'piggy-bank',
+        }
+      );
+    }
+
+    // Criar os métodos de pagamento
+    for (const methodData of defaultMethods) {
+      try {
+        await this.prisma.paymentMethod.create({
+          data: {
+            ...methodData,
+            userId,
+            walletGroupId,
+            isActive: true,
+          },
+        });
+      } catch (error) {
+        console.error(`Erro ao criar método de pagamento ${methodData.name}:`, error);
+      }
+    }
   }
 }

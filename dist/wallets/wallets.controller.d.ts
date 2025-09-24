@@ -23,7 +23,7 @@ export declare class WalletsController {
     }[]>;
     getTypes(): Promise<{
         types: {
-            value: "INVESTMENT" | "OTHER" | "CREDIT_CARD" | "DEBIT_CARD" | "WALLET_BALANCE" | "PIX" | "CHECKING_ACCOUNT" | "SAVINGS_ACCOUNT" | "CASH";
+            value: "INVESTMENT" | "OTHER" | "CREDIT_CARD" | "DEBIT_CARD" | "WALLET_BALANCE" | "CHECKING_ACCOUNT" | "SAVINGS_ACCOUNT" | "PIX" | "CASH";
             label: string;
             description: string;
             icon: string;
@@ -94,10 +94,10 @@ export declare class WalletsController {
         creditLimit: number | null;
         closingDay: number | null;
         dueDay: number | null;
+        availableLimit: number | null;
         accountNumber: string | null;
         agency: string | null;
         bankCode: string | null;
-        availableLimit: number | null;
     }>;
     toggleActive(req: any, id: number): Promise<{
         id: number;
