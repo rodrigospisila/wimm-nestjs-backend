@@ -65,7 +65,7 @@ export class CreditCardBillsService {
     return creditCards;
   }
 
-  async getCreditCardBill(userId: number, paymentMethodId: number, month?: number, year?: number): Promise<CreditCardBill> {
+  async getCreditCardBill(userId: number, paymentMethodId: number, month?: number, year?: number): Promise<any> {
     const creditCard = await this.prisma.paymentMethod.findFirst({
       where: {
         id: paymentMethodId,
@@ -86,7 +86,7 @@ export class CreditCardBillsService {
     const targetYear = year || now.getFullYear();
 
     // Calcular período da fatura
-    const billPeriod = this.calculateBillPeriod(targetMonth, targetYear, creditCard.closingDay);
+    const billPeriod = this.calculateBillPeriod(targetMonth, targetYear, creditCard.closingDay || 1);
 
     // Buscar transações do período
     const transactions = await this.prisma.transaction.findMany({
@@ -100,7 +100,6 @@ export class CreditCardBillsService {
       },
       include: {
         category: true,
-        subcategory: true,
         installment: true,
       },
       orderBy: {
@@ -114,7 +113,7 @@ export class CreditCardBillsService {
     const remainingAmount = totalAmount - paidAmount;
 
     // Determinar status da fatura
-    const dueDate = new Date(targetYear, targetMonth - 1, creditCard.dueDay);
+    const dueDate = new Date(targetYear, targetMonth - 1, creditCard.dueDay || 10);
     const status = this.getBillStatus(dueDate, remainingAmount);
 
     // Buscar faturas anteriores
@@ -141,9 +140,9 @@ export class CreditCardBillsService {
           amount: Math.abs(t.amount),
           date: t.date,
           category: {
-            name: t.category.name,
-            color: t.category.color || '#666',
-            icon: t.category.icon || 'shopping-cart',
+            name: t.category?.name || 'Categoria',
+            color: t.category?.color || '#666',
+            icon: t.category?.icon || 'shopping-cart',
           },
           installmentInfo: t.installment ? {
             currentInstallment: t.installmentNumber || 1,
@@ -157,7 +156,7 @@ export class CreditCardBillsService {
 
   async getAllCreditCardBills(userId: number): Promise<any[]> {
     const creditCards = await this.getCreditCards(userId);
-    const bills = [];
+    const bills: any[] = [];
 
     for (const card of creditCards) {
       try {
@@ -213,7 +212,7 @@ export class CreditCardBillsService {
   }
 
   private async getPreviousBills(paymentMethodId: number, currentMonth: number, currentYear: number) {
-    const bills = [];
+    const bills: any[] = [];
     
     // Buscar últimos 6 meses
     for (let i = 1; i <= 6; i++) {
