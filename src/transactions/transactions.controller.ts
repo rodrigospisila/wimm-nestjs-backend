@@ -34,6 +34,7 @@ export class TransactionsController {
     @Query('categoryId') categoryId?: string,
     @Query('paymentMethodId') paymentMethodId?: string,
     @Query('type') type?: string,
+    @Query('search') search?: string,
     @Query('page') page?: string,
     @Query('limit') limit?: string,
   ) {
@@ -44,6 +45,7 @@ export class TransactionsController {
       categoryId: categoryId ? parseInt(categoryId) : undefined,
       paymentMethodId: paymentMethodId ? parseInt(paymentMethodId) : undefined,
       type: type as any,
+      search: search || undefined,
     };
     const pagination = {
       page: page ? parseInt(page) : 1,

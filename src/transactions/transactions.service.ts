@@ -10,6 +10,7 @@ interface TransactionFilters {
   categoryId?: number;
   paymentMethodId?: number;
   type?: TransactionType;
+  search?: string;
 }
 
 interface Pagination {
@@ -41,6 +42,13 @@ export class TransactionsService {
 
     if (filters.type) {
       where.type = filters.type;
+    }
+
+    if (filters.search) {
+      where.description = {
+        contains: filters.search,
+        mode: 'insensitive',
+      };
     }
 
     const skip = (pagination.page - 1) * pagination.limit;
