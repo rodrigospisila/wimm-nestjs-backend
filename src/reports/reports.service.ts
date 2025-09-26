@@ -676,17 +676,27 @@ export class ReportsService {
       },
     });
 
-    return paymentMethods.map(pm => {
+    const results = paymentMethods.map(pm => {
       const details = paymentMethodDetails.find(detail => detail.id === pm.paymentMethodId);
       return {
+        id: pm.paymentMethodId,
         paymentMethodId: pm.paymentMethodId,
         name: details?.name || 'Método não encontrado',
         type: details?.type || 'UNKNOWN',
         color: details?.color || '#666',
         amount: Math.abs(pm._sum.amount || 0),
         transactionCount: pm._count._all,
+        percentage: 0, // Será calculado abaixo
       };
     });
+
+    // Calcular percentuais
+    const total = results.reduce((sum, pm) => sum + pm.amount, 0);
+    results.forEach(pm => {
+      pm.percentage = total > 0 ? (pm.amount / total) * 100 : 0;
+    });
+
+    return results;
   }
 
   private async getUpcomingInstallmentPayments(userId: number) {
