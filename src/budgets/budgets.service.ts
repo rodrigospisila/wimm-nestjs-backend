@@ -267,9 +267,9 @@ export class BudgetsService {
     };
 
     if (subcategoryId) {
-      // Se é um orçamento de subcategoria, buscar apenas transações dessa subcategoria
-      whereCondition.categoryId = categoryId;
-      whereCondition.subcategoryId = subcategoryId;
+      // Se é um orçamento de subcategoria, buscar transações onde categoryId é a própria subcategoria
+      whereCondition.categoryId = subcategoryId;
+      whereCondition.subcategoryId = null;
     } else {
       // Se é um orçamento de categoria principal, incluir:
       // 1. Transações diretas da categoria principal (sem subcategoria)
