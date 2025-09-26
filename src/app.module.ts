@@ -5,8 +5,9 @@ import { WalletsModule } from './wallets/wallets.module';
 import { CategoriesModule } from './categories/categories.module';
 import { TransactionsModule } from './transactions/transactions.module';
 import { ReportsModule } from './reports/reports.module';
+import { BudgetsModule } from './budgets/budgets.module';
 
 @Module({
-  imports: [PrismaModule, AuthModule, WalletsModule, CategoriesModule, TransactionsModule, ReportsModule],
+  imports: [PrismaModule, AuthModule, WalletsModule, CategoriesModule, TransactionsModule, ReportsModule, BudgetsModule],
 })
 export class AppModule {}
