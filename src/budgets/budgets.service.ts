@@ -257,17 +257,55 @@ export class BudgetsService {
     const startDate = new Date(year, month - 1, 1);
     const endDate = new Date(year, month, 0, 23, 59, 59);
 
-    const result = await this.prisma.transaction.aggregate({
-      where: {
-        userId,
-        categoryId,
-        subcategoryId: subcategoryId || undefined,
-        type: 'EXPENSE',
-        date: {
-          gte: startDate,
-          lte: endDate,
-        },
+    let whereCondition: any = {
+      userId,
+      type: 'EXPENSE',
+      date: {
+        gte: startDate,
+        lte: endDate,
       },
+    };
+
+    if (subcategoryId) {
+      // Se é um orçamento de subcategoria, buscar apenas transações dessa subcategoria
+      whereCondition.categoryId = categoryId;
+      whereCondition.subcategoryId = subcategoryId;
+    } else {
+      // Se é um orçamento de categoria principal, incluir:
+      // 1. Transações diretas da categoria principal (sem subcategoria)
+      // 2. Transações de todas as subcategorias desta categoria
+      
+      // Buscar todas as subcategorias desta categoria
+      const subcategories = await this.prisma.category.findMany({
+        where: {
+          parentCategoryId: categoryId,
+          userId,
+        },
+        select: { id: true },
+      });
+
+      const subcategoryIds = subcategories.map(sub => sub.id);
+
+      whereCondition.OR = [
+        // Transações diretas da categoria principal
+        {
+          categoryId,
+          subcategoryId: null,
+        },
+        // Transações das subcategorias
+        ...(subcategoryIds.length > 0 ? [{
+          categoryId: {
+            in: subcategoryIds,
+          },
+          subcategoryId: {
+            not: null,
+          },
+        }] : []),
+      ];
+    }
+
+    const result = await this.prisma.transaction.aggregate({
+      where: whereCondition,
       _sum: {
         amount: true,
       },
